@@ -1,8 +1,8 @@
 package cipher_test
 
 import (
+	"github.com/kainonly/go/cipher"
 	"github.com/stretchr/testify/assert"
-	"github.com/weplanx/go/cipher"
 	"testing"
 )
 

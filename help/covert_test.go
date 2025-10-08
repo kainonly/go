@@ -1,8 +1,8 @@
 package help_test
 
 import (
+	"github.com/kainonly/go/help"
 	"github.com/stretchr/testify/assert"
-	"github.com/weplanx/go/help"
 	"testing"
 )
 

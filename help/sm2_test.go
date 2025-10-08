@@ -6,8 +6,8 @@ import (
 	"encoding/base64"
 	"github.com/emmansun/gmsm/sm2"
 	"github.com/emmansun/gmsm/smx509"
+	"github.com/kainonly/go/help"
 	"github.com/stretchr/testify/assert"
-	"github.com/weplanx/go/help"
 	"testing"
 )
 

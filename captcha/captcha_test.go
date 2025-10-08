@@ -2,9 +2,9 @@ package captcha_test
 
 import (
 	"context"
+	"github.com/kainonly/go/captcha"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
-	"github.com/weplanx/go/captcha"
 	"log"
 	"os"
 	"testing"

@@ -2,8 +2,8 @@ package totp_test
 
 import (
 	"fmt"
+	"github.com/kainonly/go/totp"
 	"github.com/stretchr/testify/assert"
-	"github.com/weplanx/go/totp"
 	"testing"
 	"time"
 )
