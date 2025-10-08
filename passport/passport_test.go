@@ -2,8 +2,8 @@ package passport_test
 
 import (
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/kainonly/go/passport"
 	"github.com/stretchr/testify/assert"
-	"github.com/weplanx/go/passport"
 	"os"
 	"testing"
 	"time"

@@ -1,8 +1,8 @@
 package passlib_test
 
 import (
+	"github.com/kainonly/go/passlib"
 	"github.com/stretchr/testify/assert"
-	"github.com/weplanx/go/passlib"
 	"testing"
 )
 
