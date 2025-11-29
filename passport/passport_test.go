@@ -1,12 +1,13 @@
 package passport_test
 
 import (
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/kainonly/go/passport"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/kainonly/go/passport"
+	"github.com/stretchr/testify/assert"
 )
 
 var x1 *passport.Passport
@@ -79,6 +80,19 @@ func TestSigningMethodHS384(t *testing.T) {
 	assert.NoError(t, err)
 	_, err = x1.Verify(ts)
 	assert.NoError(t, err)
+}
+
+func TestSetData(t *testing.T) {
+	claims := passport.NewClaims(userId1, time.Hour*2).SetJTI(jti1).SetData(map[string]interface{}{
+		"role":   "admin",
+		"active": true,
+	})
+	ts, err := x1.Create(claims)
+	assert.NoError(t, err)
+	parsed, err := x1.Verify(ts)
+	assert.NoError(t, err)
+	assert.Equal(t, "admin", parsed.Data["role"])
+	assert.Equal(t, true, parsed.Data["active"])
 }
 
 var ecPKey = `-----BEGIN EC PRIVATE KEY-----
