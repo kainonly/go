@@ -46,26 +46,43 @@ func TestCreate(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	var err error
-	var clamis1 passport.Claims
-	clamis1, err = x1.Verify(token)
+	var claims1 passport.Claims
+	claims1, err = x1.Verify(token)
 	assert.NoError(t, err)
-	assert.Equal(t, clamis1.ID, jti1)
-	assert.Equal(t, clamis1.ActiveId, userId1)
-	assert.Equal(t, clamis1.Issuer, x1.Issuer)
-	var clamis2 passport.Claims
-	clamis2, err = x2.Verify(otherToken)
-	assert.NoError(t, err)
-	assert.Equal(t, clamis2.ID, jti2)
-	assert.Equal(t, clamis2.ActiveId, userId2)
-	assert.Equal(t, clamis2.Issuer, x2.Issuer)
+	assert.Equal(t, jti1, claims1.ID)
+	assert.Equal(t, userId1, claims1.ActiveId)
+	assert.Equal(t, x1.Issuer, claims1.Issuer)
 
+	var claims2 passport.Claims
+	claims2, err = x2.Verify(otherToken)
+	assert.NoError(t, err)
+	assert.Equal(t, jti2, claims2.ID)
+	assert.Equal(t, userId2, claims2.ActiveId)
+	assert.Equal(t, x2.Issuer, claims2.Issuer)
+
+	// Cross-verification should fail (different keys)
 	_, err = x1.Verify(otherToken)
 	assert.Error(t, err)
 	_, err = x2.Verify(token)
 	assert.Error(t, err)
 }
 
-func TestSigningMethodHS384(t *testing.T) {
+func TestVerify_InvalidIssuer(t *testing.T) {
+	// Create a token with x1's key but different issuer
+	x3 := passport.New(
+		passport.SetIssuer("other"),
+		passport.SetKey(key1),
+	)
+	tokenOther, err := x3.Create(passport.NewClaims(userId1, time.Hour*2))
+	assert.NoError(t, err)
+
+	// Verify with x1 should fail due to issuer mismatch
+	_, err = x1.Verify(tokenOther)
+	assert.ErrorIs(t, err, passport.ErrInvalidIssuer)
+}
+
+func TestVerify_InvalidSigningMethod_HS384(t *testing.T) {
+	// HS384 should be rejected (only HS256 is allowed)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS384, passport.Claims{
 		ActiveId: userId1,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -79,29 +96,18 @@ func TestSigningMethodHS384(t *testing.T) {
 	ts, err := token.SignedString([]byte(key1))
 	assert.NoError(t, err)
 	_, err = x1.Verify(ts)
-	assert.NoError(t, err)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "passport: invalid signing method")
 }
 
-func TestSetData(t *testing.T) {
-	claims := passport.NewClaims(userId1, time.Hour*2).SetJTI(jti1).SetData(map[string]interface{}{
-		"role":   "admin",
-		"active": true,
-	})
-	ts, err := x1.Create(claims)
-	assert.NoError(t, err)
-	parsed, err := x1.Verify(ts)
-	assert.NoError(t, err)
-	assert.Equal(t, "admin", parsed.Data["role"])
-	assert.Equal(t, true, parsed.Data["active"])
-}
-
-var ecPKey = `-----BEGIN EC PRIVATE KEY-----
+func TestVerify_InvalidSigningMethod_ES256(t *testing.T) {
+	// ECDSA should be rejected
+	ecPKey := `-----BEGIN EC PRIVATE KEY-----
 MHcCAQEEIAh5qA3rmqQQuu0vbKV/+zouz/y/Iy2pLpIcWUSyImSwoAoGCCqGSM49
 AwEHoUQDQgAEYD54V/vp+54P9DXarYqx4MPcm+HKRIQzNasYSoRQHQ/6S6Ps8tpM
 cT+KvIIC8W/e9k0W7Cm72M1P9jU7SLf/vg==
 -----END EC PRIVATE KEY-----`
 
-func TestOtherSigningMethod(t *testing.T) {
 	token := jwt.NewWithClaims(jwt.SigningMethodES256, passport.Claims{
 		ActiveId: userId1,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -118,5 +124,29 @@ func TestOtherSigningMethod(t *testing.T) {
 	assert.NoError(t, err)
 	_, err = x1.Verify(ts)
 	assert.Error(t, err)
-	t.Log(err)
+}
+
+func TestSetData(t *testing.T) {
+	claims := passport.NewClaims(userId1, time.Hour*2).SetJTI(jti1).SetData(map[string]interface{}{
+		"role":   "admin",
+		"active": true,
+	})
+	ts, err := x1.Create(claims)
+	assert.NoError(t, err)
+	parsed, err := x1.Verify(ts)
+	assert.NoError(t, err)
+	assert.Equal(t, "admin", parsed.Data["role"])
+	assert.Equal(t, true, parsed.Data["active"])
+}
+
+func TestNewClaims(t *testing.T) {
+	claims := passport.NewClaims("user123", time.Hour)
+
+	assert.Equal(t, "user123", claims.ActiveId)
+	assert.NotNil(t, claims.ExpiresAt)
+	assert.NotNil(t, claims.IssuedAt)
+	assert.NotNil(t, claims.NotBefore)
+	// ExpiresAt should be approximately 1 hour from now
+	assert.True(t, claims.ExpiresAt.Time.After(time.Now().Add(59*time.Minute)))
+	assert.True(t, claims.ExpiresAt.Time.Before(time.Now().Add(61*time.Minute)))
 }
