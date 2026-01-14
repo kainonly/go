@@ -6,6 +6,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	errx "errors"
+	"os"
+	"reflect"
+	"regexp"
+
 	"github.com/bytedance/gopkg/util/logger"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/errors"
@@ -13,15 +17,16 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/hertz-contrib/binding/go_playground"
 	"github.com/hertz-contrib/requestid"
-	"os"
-	"reflect"
-	"regexp"
 )
 
+// Ptr returns a pointer to the given value.
+// Useful for creating pointers to literals.
 func Ptr[T any](i T) *T {
 	return &i
 }
 
+// IsEmpty checks if a value is considered empty.
+// Returns true for nil, empty strings, zero values, empty slices/maps, etc.
 func IsEmpty(i any) bool {
 	if i == nil || i == "" {
 		return true
@@ -50,17 +55,24 @@ func IsEmpty(i any) bool {
 	}
 }
 
+// Sha256hex computes SHA256 hash and returns hex-encoded string.
 func Sha256hex(s string) string {
 	b := sha256.Sum256([]byte(s))
 	return hex.EncodeToString(b[:])
 }
 
+// HmacSha256 computes HMAC-SHA256 and returns raw bytes as string.
+// For hex output, use hex.EncodeToString on the result.
 func HmacSha256(s, key string) string {
 	hashed := hmac.New(sha256.New, []byte(key))
 	hashed.Write([]byte(s))
 	return string(hashed.Sum(nil))
 }
 
+// Validator creates a configured go-playground validator for Hertz.
+// It sets "vd" as the validation tag and registers custom validators:
+//   - snake: validates snake_case format (e.g., "user_name")
+//   - sort: validates sort format (e.g., "created_at:1" or "name:-1")
 func Validator() *go_playground.Validator {
 	vd := go_playground.NewValidator()
 	vd.SetValidateTag("vd")
@@ -82,11 +94,13 @@ func Validator() *go_playground.Validator {
 	return vd
 }
 
+// R is a standard API response structure.
 type R struct {
 	Code    int64  `json:"code"`
 	Message string `json:"message"`
 }
 
+// Ok returns a success response with code 0 and message "ok".
 func Ok() R {
 	return R{
 		Code:    0,
@@ -94,6 +108,7 @@ func Ok() R {
 	}
 }
 
+// Fail returns an error response with the given code and message.
 func Fail(code int64, msg string) R {
 	return R{
 		Code:    code,
@@ -101,14 +116,27 @@ func Fail(code int64, msg string) R {
 	}
 }
 
+// ErrorMeta contains error metadata for Hertz errors.
 type ErrorMeta struct {
 	Code int64
 }
 
+// E creates a public Hertz error with a code.
+// Use this for business logic errors that should be shown to users.
 func E(code int64, msg string) *errors.Error {
 	return errors.NewPublic(msg).SetMeta(&ErrorMeta{Code: code})
 }
 
+// ErrorTypePublic is the type for public errors in Hertz framework.
+var ErrorTypePublic = errors.ErrorTypePublic
+
+// ErrorHandler returns a Hertz middleware that handles errors.
+// It processes different error types:
+//   - Public errors: Returns 400 with code and message
+//   - Validation errors: Returns 400 with field details
+//   - Other errors: Returns 500 (with details in dev mode)
+//
+// Set MODE=release environment variable for production mode.
 func ErrorHandler() app.HandlerFunc {
 	release := os.Getenv("MODE") == "release"
 	return func(ctx context.Context, c *app.RequestContext) {

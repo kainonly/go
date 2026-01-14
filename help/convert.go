@@ -2,28 +2,33 @@ package help
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/binary"
 	"fmt"
-	"math/rand"
 	"sort"
 	"strconv"
 )
 
+// Reverse reverses the order of elements in a slice in place.
 func Reverse[T any](v []T) {
 	for n, m := 0, len(v)-1; n < len(v)/2; n, m = n+1, m-1 {
 		v[n], v[m] = v[m], v[n]
 	}
 }
 
+// Shuffle randomly shuffles the elements in a slice in place.
+// Uses cryptographically secure random numbers.
 func Shuffle[T any](v []T) {
-	m := 0
 	for n := len(v) - 1; n > 0; n-- {
-		m = rand.Intn(n + 1)
+		m := secureRandInt(n + 1)
 		if n != m {
 			v[n], v[m] = v[m], v[n]
 		}
 	}
 }
 
+// ReverseString returns a new string with characters in reverse order.
+// Properly handles Unicode characters.
 func ReverseString(v string) string {
 	runes := []rune(v)
 	for n, m := 0, len(runes)-1; n < len(runes)/2; n, m = n+1, m-1 {
@@ -32,10 +37,12 @@ func ReverseString(v string) string {
 	return string(runes)
 }
 
+// ShuffleString returns a new string with characters randomly shuffled.
+// Uses cryptographically secure random numbers.
 func ShuffleString(v string) string {
-	runes, m := []rune(v), 0
+	runes := []rune(v)
 	for n := len(runes) - 1; n > 0; n-- {
-		m = rand.Intn(n + 1)
+		m := secureRandInt(n + 1)
 		if n != m {
 			runes[n], runes[m] = runes[m], runes[n]
 		}
@@ -43,6 +50,16 @@ func ShuffleString(v string) string {
 	return string(runes)
 }
 
+// secureRandInt returns a cryptographically secure random int in [0, max).
+func secureRandInt(max int) int {
+	var b [8]byte
+	rand.Read(b[:])
+	return int(binary.BigEndian.Uint64(b[:]) % uint64(max))
+}
+
+// MapToSignText converts a map to a URL-encoded query string format.
+// Keys are sorted alphabetically, nil and empty values are omitted.
+// Format: "key1=value1&key2=value2"
 func MapToSignText(d map[string]any) string {
 	keys := make([]string, 0, len(d))
 	for k := range d {
