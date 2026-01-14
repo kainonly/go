@@ -10,8 +10,10 @@ import (
 func TestDecode_BadBase64(t *testing.T) {
 	x, err := cipher.New("6ixSiEXaqxsJTozbnxQ76CWdZXB2JazK")
 	assert.NoError(t, err)
+	t.Log(x)
 	_, err = x.Decode("@@@notbase64@@@")
 	assert.Error(t, err)
+	t.Log(err)
 }
 
 func TestDecode_CiphertextTooShort(t *testing.T) {

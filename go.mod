@@ -11,6 +11,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hertz-contrib/binding v0.1.0
 	github.com/hertz-contrib/requestid v1.1.0
+	github.com/pquerna/otp v1.5.0
 	github.com/redis/go-redis/v9 v9.14.0
 	github.com/sony/sonyflake v1.3.0
 	github.com/stretchr/testify v1.11.1
@@ -18,6 +19,7 @@ require (
 )
 
 require (
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
