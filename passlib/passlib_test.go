@@ -1,9 +1,10 @@
 package passlib_test
 
 import (
+	"testing"
+
 	"github.com/kainonly/go/passlib"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestHashAndVerify(t *testing.T) {
@@ -13,6 +14,15 @@ func TestHashAndVerify(t *testing.T) {
 	assert.NoError(t, err)
 	err = passlib.Verify("pass@VAN1235", hash)
 	assert.ErrorIs(t, err, passlib.ErrNotMatch)
+
+	// Test long password
+	longPw := make([]byte, 100)
+	for i := range longPw {
+		longPw[i] = 'a'
+	}
+	longHash, err := passlib.Hash(string(longPw))
+	assert.NoError(t, err)
+	assert.NotEmpty(t, longHash)
 }
 
 const PASS1 = `$argon2i$v=19$m=65536,t=4,p=1$NPCjKIcoU2z6rg6p8glOfg$jrbRcvsTq/ITJP414/xhNNwOtVeHYa478hPn8M6uJLA`
@@ -35,8 +45,21 @@ func TestVerifyErrors(t *testing.T) {
 	err = passlib.Verify("pass@VAN1234", PASS4)
 	assert.ErrorIs(t, err, passlib.ErrInvalidHash)
 	err = passlib.Verify("pass@VAN1234", PASS5)
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, passlib.ErrInvalidHash)
 	err = passlib.Verify("pass@VAN1234", PASS6)
-	assert.Error(t, err)
-	t.Log(err)
+	assert.ErrorIs(t, err, passlib.ErrInvalidHash)
+}
+
+func TestNeedsRehash(t *testing.T) {
+	// Hash with current parameters should not need rehash
+	hash, err := passlib.Hash("password")
+	assert.NoError(t, err)
+	assert.False(t, passlib.NeedsRehash(hash))
+
+	// Hash with different parameters should need rehash
+	oldHash := `$argon2id$v=19$m=32768,t=4,p=1$NPCjKIcoU2z6rg6p8glOfg$jrbRcvsTq/ITJP414/xhNNwOtVeHYa478hPn8M6uJLA`
+	assert.True(t, passlib.NeedsRehash(oldHash))
+
+	// Invalid hash should need rehash
+	assert.True(t, passlib.NeedsRehash("invalid"))
 }

@@ -1,9 +1,10 @@
 package cipher_test
 
 import (
+	"testing"
+
 	"github.com/kainonly/go/cipher"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var x1 *cipher.Cipher
@@ -25,16 +26,29 @@ var encryptedText string
 func TestCipher_Encode(t *testing.T) {
 	var err error
 	encryptedText, err = x1.Encode([]byte(text))
-	t.Log(encryptedText)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, encryptedText)
+
+	// Test empty data
+	emptyCt, err := x1.Encode([]byte{})
+	assert.NoError(t, err)
+	assert.NotEmpty(t, emptyCt)
 }
 
 func TestCipher_Decode(t *testing.T) {
 	decryptedText, err := x1.Decode(encryptedText)
 	assert.NoError(t, err)
 	assert.Equal(t, text, string(decryptedText))
+
+	// Wrong key should fail
 	_, err = x2.Decode(encryptedText)
 	assert.Error(t, err)
-	_, err = x1.Decode("asdasdasd")
+
+	// Invalid base64 should fail
+	_, err = x1.Decode("@@@notbase64@@@")
 	assert.Error(t, err)
+
+	// Ciphertext too short should fail
+	_, err = x1.Decode("YWJj") // "abc" in base64
+	assert.ErrorIs(t, err, cipher.ErrCiphertextTooShort)
 }
