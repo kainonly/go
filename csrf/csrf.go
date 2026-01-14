@@ -1,6 +1,7 @@
 // Package csrf provides CSRF (Cross-Site Request Forgery) protection middleware for Hertz.
 //
 // It implements the Double Submit Cookie pattern using HMAC-SHA256.
+// Cookies are session-level and automatically cleared when the browser closes.
 //
 // # Hertz Backend Setup
 //
@@ -10,13 +11,20 @@
 //		csrf.SetDomain("example.com"),
 //	)
 //
-//	// Set token endpoint (call on login or page load)
+//	// CSRF token endpoint (called on first page load)
 //	h.GET("/csrf-token", func(ctx context.Context, c *app.RequestContext) {
 //		csrfProtect.SetToken(c)
 //		c.JSON(200, utils.H{"message": "ok"})
 //	})
 //
-//	// Protect API routes
+//	// Login endpoint (refresh CSRF token after login for security)
+//	h.POST("/auth/login", func(ctx context.Context, c *app.RequestContext) {
+//		// ... validate credentials ...
+//		csrfProtect.SetToken(c) // Refresh CSRF token
+//		c.JSON(200, utils.H{"accessToken": token})
+//	})
+//
+//	// Protect API routes with CSRF middleware
 //	api := h.Group("/api", csrfProtect.VerifyToken())
 //	api.POST("/submit", submitHandler)
 //	api.PUT("/update", updateHandler)
@@ -34,14 +42,14 @@
 //	  providers: [
 //	    provideHttpClient(
 //	      withXsrfConfiguration({
-//	        cookieName: 'XSRF-TOKEN',  // Must match SetCookieName (default)
-//	        headerName: 'X-XSRF-TOKEN' // Must match SetHeaderName (default)
+//	        cookieName: 'XSRF-TOKEN',  // Must match backend default
+//	        headerName: 'X-XSRF-TOKEN' // Must match backend default
 //	      })
 //	    )
 //	  ]
 //	};
 //
-// 2. Call the token endpoint on app initialization or after login:
+// 2. Create CSRF service:
 //
 //	@Injectable({ providedIn: 'root' })
 //	export class CsrfService {
@@ -52,17 +60,38 @@
 //	  }
 //	}
 //
-// 3. Ensure all HTTP requests include credentials:
+// 3. Get CSRF token on app initialization (app.component.ts):
+//
+//	export class AppComponent implements OnInit {
+//	  constructor(private csrfService: CsrfService) {}
+//
+//	  ngOnInit() {
+//	    this.csrfService.initToken().subscribe();
+//	  }
+//	}
+//
+// 4. Refresh CSRF token after login (recommended):
+//
+//	login(credentials: LoginRequest) {
+//	  return this.http.post<LoginResponse>('/auth/login', credentials, {
+//	    withCredentials: true
+//	  }).pipe(
+//	    tap(res => localStorage.setItem('token', res.accessToken))
+//	    // CSRF cookie is refreshed automatically by backend
+//	  );
+//	}
+//
+// 5. Ensure all HTTP requests include credentials:
 //
 //	this.http.post('/api/submit', data, { withCredentials: true })
 //
-// Note: Angular automatically reads XSRF-TOKEN cookie and sends X-XSRF-TOKEN header.
+// # Security Notes
 //
-// # Important Security Notes
-//
-//   - The XSRF-TOKEN cookie is HttpOnly=false so JavaScript can read it
-//   - The XSRF-SALT cookie is HttpOnly=true for additional security
+//   - Cookies are session-level (cleared when browser closes)
+//   - XSRF-TOKEN cookie is readable by JavaScript (HttpOnly=false)
+//   - XSRF-SALT cookie is HttpOnly=true for additional security
 //   - Both cookies use SameSite=Strict to prevent cross-site requests
+//   - Refresh CSRF token after login to prevent pre-auth token theft
 //   - Always use HTTPS in production
 package csrf
 
