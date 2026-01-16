@@ -8,15 +8,14 @@ import (
 	errx "errors"
 	"os"
 	"reflect"
-	"regexp"
 
 	"github.com/bytedance/gopkg/util/logger"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/errors"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/go-playground/validator/v10"
-	"github.com/hertz-contrib/binding/go_playground"
 	"github.com/hertz-contrib/requestid"
+	"github.com/kainonly/go/vd"
 )
 
 // Ptr returns a pointer to the given value.
@@ -73,25 +72,10 @@ func HmacSha256(s, key string) string {
 // It sets "vd" as the validation tag and registers custom validators:
 //   - snake: validates snake_case format (e.g., "user_name")
 //   - sort: validates sort format (e.g., "created_at:1" or "name:-1")
-func Validator() *go_playground.Validator {
-	vd := go_playground.NewValidator()
-	vd.SetValidateTag("vd")
-	vdx := vd.Engine().(*validator.Validate)
-	vdx.RegisterValidation("snake", func(fl validator.FieldLevel) bool {
-		matched, err := regexp.MatchString("^[a-z_]+$", fl.Field().Interface().(string))
-		if err != nil {
-			return false
-		}
-		return matched
-	})
-	vdx.RegisterValidation("sort", func(fl validator.FieldLevel) bool {
-		matched, err := regexp.MatchString("^[a-z_]+:(-1|1)$", fl.Field().Interface().(string))
-		if err != nil {
-			return false
-		}
-		return matched
-	})
-	return vd
+//
+// Deprecated: Use vd.Default() instead.
+func Validator() *vd.Validator {
+	return vd.Default()
 }
 
 // R is a standard API response structure.

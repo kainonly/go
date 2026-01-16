@@ -244,21 +244,21 @@ func TestE(t *testing.T) {
 }
 
 func TestValidator_CustomRules(t *testing.T) {
-	vd := help.Validator()
+	v := help.Validator()
 	type S struct {
 		Name string `vd:"snake"`
 		Sort string `vd:"sort"`
 	}
 	ok := S{Name: "user_name", Sort: "created_at:1"}
-	err := vd.ValidateStruct(&ok)
+	err := v.Validate(&ok)
 	assert.NoError(t, err)
 
 	bad1 := S{Name: "UserName", Sort: "created_at:1"}
-	err = vd.ValidateStruct(&bad1)
+	err = v.Validate(&bad1)
 	assert.Error(t, err)
 
 	bad2 := S{Name: "user_name", Sort: "created_at:2"}
-	err = vd.ValidateStruct(&bad2)
+	err = v.Validate(&bad2)
 	assert.Error(t, err)
 }
 
@@ -424,4 +424,3 @@ func TestSM4_InvalidInputs(t *testing.T) {
 	_, err = help.SM4Decrypt("f93c920868b4e5a88dfb27fd44b9f8db", "not-hex")
 	assert.Error(t, err)
 }
-
