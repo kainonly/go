@@ -38,6 +38,7 @@ jobs:
           exit 1
 
       - run: |
+          go clean -modcache
           go mod download
           go mod verify
           go test -race -covermode atomic -coverprofile=covprofile ./...
