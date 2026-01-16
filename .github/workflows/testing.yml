@@ -22,6 +22,12 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Download dependencies
+        run: |
+          go clean -modcache
+          go mod download
+          go mod verify
+
       - name: Start dependencies
         run: |
           compose_file=".github/compose/docker-compose.yml"
@@ -37,10 +43,8 @@ jobs:
           docker compose -f "$compose_file" logs redis
           exit 1
 
-      - run: |
-          go mod download
-          go mod verify
-          go test -race -covermode atomic -coverprofile=covprofile ./...
+      - name: Run tests
+        run: go test -race -covermode atomic -coverprofile=covprofile ./...
         env:
           DATABASE_REDIS: redis://127.0.0.1:6379
 
