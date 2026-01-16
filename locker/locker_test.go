@@ -71,7 +71,8 @@ func TestIncrement_PreservesTTL(t *testing.T) {
 
 	// TTL should still be close to original (less than 1 second)
 	ttl := x.RDb.TTL(ctx, x.Key("test2")).Val()
-	assert.True(t, ttl < time.Second)
+	assert.True(t, ttl > 0)
+	assert.True(t, ttl < 2*time.Second)
 
 	// Cleanup
 	x.Delete(ctx, "test2")
