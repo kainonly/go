@@ -20,8 +20,19 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/kainonly/go/help"
+	"github.com/sony/sonyflake"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	// Initialize Sonyflake with a fixed MachineID for tests
+	// This ensures SF is not nil in test environments where no private IP is available
+	help.SF = sonyflake.NewSonyflake(sonyflake.Settings{
+		MachineID: func() (uint16, error) {
+			return 1, nil
+		},
+	})
+}
 
 func TestRandom(t *testing.T) {
 	v1 := help.Random(16)
