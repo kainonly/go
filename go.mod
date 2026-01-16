@@ -1,6 +1,6 @@
 module github.com/kainonly/go
 
-go 1.21
+go 1.24.0
 
 require (
 	github.com/bytedance/gopkg v0.1.3

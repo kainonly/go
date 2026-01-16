@@ -23,7 +23,7 @@ go get github.com/kainonly/go
 | [passport](#passport---jwt-认证) | JWT 认证 (HS256) |
 | [csrf](#csrf---csrf-防护) | CSRF 防护中间件 |
 | [captcha](#captcha---验证码) | 验证码管理 (Redis) |
-| [locker](#locker---限流器) | 限流与尝试次数计数 (Redis) |
+| [locker](#locker---失败锁定) | 尝试次数计数与锁定 (Redis) |
 | [passlib](#passlib---密码哈希) | 密码哈希 (Argon2id) |
 | [totp](#totp---一次性密码) | TOTP 一次性密码 |
 | [cipher](#cipher---加密) | 对称加密工具 |
@@ -251,24 +251,27 @@ if errors.Is(err, captcha.ErrNotExists) {
 
 ---
 
-## locker - 限流器
+## locker - 失败锁定
 
-基于 Redis 的限流与尝试次数计数。
+基于 Redis 的尝试次数计数与锁定，适用于登录失败锁定、验证码错误限制等场景。
 
 ```go
 import "github.com/kainonly/go/locker"
 
-// 创建限流器
+// 创建锁定器
 lock := locker.New(redisClient)
 
-// 增加计数
+// 登录失败时增加计数
 count, err := lock.Increment(ctx, "login:user123", time.Minute)
 
-// 检查是否锁定
-err := lock.Check(ctx, "login:user123", 5) // 最多 5 次
+// 检查是否已锁定（超过 5 次失败）
+err := lock.Check(ctx, "login:user123", 5)
 if errors.Is(err, locker.ErrLocked) {
-    // 已锁定
+    // 账户已锁定，请稍后再试
 }
+
+// 登录成功后清除计数
+lock.Delete(ctx, "login:user123")
 ```
 
 ---
@@ -348,9 +351,17 @@ help.RandomLowercase(8)   // 随机小写
 ### ID 生成
 
 ```go
-help.Uuid()               // UUID v4
+help.Uuid7()              // UUID v7 (推荐用于主键)
+help.MustUuid7()          // UUID v7 (失败时 panic)
+help.Uuid7Time(id)        // 从 UUID v7 提取时间戳
+help.Uuid()               // UUID v4 (已废弃，建议使用 v7)
 help.SID()                // Snowflake ID
 ```
+
+> **为什么使用 UUIDv7？**
+> - 按时间排序，新记录自然排在后面
+> - 顺序插入，数据库索引性能更好
+> - 可从 ID 中提取创建时间
 
 ### 加密工具
 

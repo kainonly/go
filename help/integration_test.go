@@ -9,6 +9,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/config"
@@ -301,8 +302,49 @@ func TestErrorHandler_Internal(t *testing.T) {
 
 func TestUuid(t *testing.T) {
 	v := help.Uuid()
-	_, err := uuid.Parse(v)
+	id, err := uuid.Parse(v)
 	assert.NoError(t, err)
+	assert.Equal(t, uuid.Version(4), id.Version())
+}
+
+func TestUuid7(t *testing.T) {
+	v := help.Uuid7()
+	id, err := uuid.Parse(v)
+	assert.NoError(t, err)
+	assert.Equal(t, uuid.Version(7), id.Version())
+
+	// Test time ordering
+	v1 := help.Uuid7()
+	v2 := help.Uuid7()
+	assert.True(t, v1 < v2, "UUIDv7 should be time-ordered")
+}
+
+func TestMustUuid7(t *testing.T) {
+	v := help.MustUuid7()
+	id, err := uuid.Parse(v)
+	assert.NoError(t, err)
+	assert.Equal(t, uuid.Version(7), id.Version())
+}
+
+func TestUuid7Time(t *testing.T) {
+	v := help.Uuid7()
+
+	ts, ok := help.Uuid7Time(v)
+	assert.True(t, ok)
+	assert.Greater(t, ts, int64(0))
+
+	// Timestamp should be close to now (within 1 second)
+	now := time.Now().UnixMilli()
+	assert.InDelta(t, now, ts, 1000)
+
+	// Test invalid UUID
+	_, ok = help.Uuid7Time("invalid")
+	assert.False(t, ok)
+
+	// Test UUIDv4 (not v7)
+	v4 := help.Uuid()
+	_, ok = help.Uuid7Time(v4)
+	assert.False(t, ok)
 }
 
 func TestSID(t *testing.T) {
