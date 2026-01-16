@@ -5,6 +5,22 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.1] - 2026-01-16
+
+### 修复 (Fixed)
+- **构建错误**: 修复了 Go 1.24.7 环境下由 `bytedance/sonic` 引起的链接错误
+  - 升级 `sonic` 从 v1.14.0 到 v1.14.2 解决 "invalid reference to runtime.lastmoduledatap" 错误
+  - 升级相关依赖 `sonic/loader`, `base64x`, `cpuid/v2`
+- **测试失败**: 修复了 CI 环境中 `help` 包的 Sonyflake ID 生成测试失败
+  - 为测试环境添加固定的 MachineID 配置
+  - 解决无私网 IP 环境下的初始化问题
+
+### 依赖更新 (Dependencies)
+- github.com/bytedance/sonic: v1.14.0 → v1.14.2
+- github.com/bytedance/sonic/loader: v0.3.0 → v0.4.0
+- github.com/cloudwego/base64x: v0.1.5 → v0.1.6
+- github.com/klauspost/cpuid/v2: v2.0.9 → v2.2.9
+
 ## [1.0.0] - 2026-01-16
 
 ### 首次发布 🎉
@@ -104,4 +120,5 @@
 - **Fixed**: 问题修复
 - **Security**: 安全性相关的修复
 
+[1.0.1]: https://github.com/kainonly/go/releases/tag/v1.0.1
 [1.0.0]: https://github.com/kainonly/go/releases/tag/v1.0.0
