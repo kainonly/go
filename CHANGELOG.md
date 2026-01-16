@@ -5,6 +5,24 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.1] - 2026-01-16
+
+### 新增功能 (Added)
+- **help** - 添加 UUIDv7 生成与时间提取功能
+  - 支持生成基于时间戳的 UUIDv7
+  - 支持从 UUIDv7 提取时间戳信息
+
+### 改进 (Changed)
+- **依赖** - 更新 Go 依赖版本以修复安全漏洞和兼容性问题
+  - 更新核心依赖包至最新稳定版本
+  - 修复已知安全漏洞
+
+### CI/CD (Infrastructure)
+- 统一工作流中的 Go 版本设置格式
+- 简化测试工作流中的 go 模块命令
+- 简化 go 版本设置并移除缓存配置
+- 在测试前清理 go 模块缓存以提高可靠性
+
 ## [1.0.0] - 2026-01-16
 
 ### 首次发布 🎉
@@ -104,4 +122,5 @@
 - **Fixed**: 问题修复
 - **Security**: 安全性相关的修复
 
+[1.0.1]: https://github.com/kainonly/go/releases/tag/v1.0.1
 [1.0.0]: https://github.com/kainonly/go/releases/tag/v1.0.0
