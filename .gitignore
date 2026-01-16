@@ -4,6 +4,8 @@
 # Tests
 /coverage
 /.nyc_output
+*.test
+coverage.out
 
 # IDEs and editors
 /.idea
