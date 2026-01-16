@@ -45,6 +45,7 @@ jobs:
           DATABASE_REDIS: redis://127.0.0.1:6379
 
       - name: PUSH COVERALLS
+        if: github.event_name == 'push'
         run: |
           go install github.com/mattn/goveralls@v0.0.12
           goveralls -coverprofile=covprofile -service=github
