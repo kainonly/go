@@ -3,33 +3,55 @@ name: Testing
 on:
   push:
     branches: [ main ]
+  pull_request:
+
+concurrency:
+  group: testing-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   testing:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
 
-      - run: |
-          docker compose -f ".github/compose/docker-compose.yml" up -d
-
       - uses: actions/setup-go@v5
         with:
-          go-version: ~1.24
+          go-version-file: go.mod
+          cache: true
+
+      - name: Start dependencies
+        run: |
+          compose_file=".github/compose/docker-compose.yml"
+          docker compose -f "$compose_file" up -d --quiet-pull --wait || docker compose -f "$compose_file" up -d --quiet-pull
+
+          for i in {1..30}; do
+            if docker compose -f "$compose_file" exec -T redis redis-cli ping | grep -q PONG; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          docker compose -f "$compose_file" logs redis
+          exit 1
 
       - run: |
-          go mod tidy
+          go mod download
+          go mod verify
           go test -race -covermode atomic -coverprofile=covprofile ./...
         env:
-          GO111MODULE: on
-          NAMESPACE: example
-          KEY: rsd68cRFeHollOHEEZOYuTB2jU4WwmMf
           DATABASE_REDIS: redis://127.0.0.1:6379
 
       - name: PUSH COVERALLS
         run: |
-          go install github.com/mattn/goveralls@latest
+          go install github.com/mattn/goveralls@v0.0.12
           goveralls -coverprofile=covprofile -service=github
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Stop dependencies
+        if: always()
+        run: |
+          docker compose -f ".github/compose/docker-compose.yml" down -v
