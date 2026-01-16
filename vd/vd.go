@@ -1,5 +1,71 @@
 // Package vd provides a configurable validator wrapper for go-playground/validator
 // with Hertz framework integration and custom validation rules support.
+//
+// # Hertz Integration
+//
+// Use with Hertz server by passing the validator engine to server options:
+//
+//	import (
+//	    "github.com/cloudwego/hertz/pkg/app/server"
+//	    "github.com/kainonly/go/vd"
+//	)
+//
+//	func main() {
+//	    // Create validator with default rules (snake, sort)
+//	    v := vd.Default()
+//
+//	    // Or create with custom rules
+//	    v := vd.New(
+//	        vd.SetTag("vd"),  // optional, "vd" is default
+//	        vd.SetRules(
+//	            vd.Snake(),
+//	            vd.Sort(),
+//	            vd.Phone(),
+//	            vd.IDCard(),
+//	            vd.PasswordMedium(),
+//	        ),
+//	    )
+//
+//	    // Pass to Hertz server
+//	    h := server.Default(
+//	        server.WithHostPorts(":8080"),
+//	        server.WithCustomValidator(v.Engine()),
+//	    )
+//
+//	    h.POST("/user", func(ctx context.Context, c *app.RequestContext) {
+//	        var req struct {
+//	            Name  string `json:"name" vd:"required,snake"`
+//	            Phone string `json:"phone" vd:"required,phone"`
+//	        }
+//	        if err := c.BindAndValidate(&req); err != nil {
+//	            c.JSON(400, map[string]any{"error": err.Error()})
+//	            return
+//	        }
+//	        c.JSON(200, map[string]any{"message": "ok"})
+//	    })
+//
+//	    h.Spin()
+//	}
+//
+// # Available Rule Groups
+//
+//   - All(): All available rules
+//   - Common(): Commonly used rules (snake, sort, phone, idcard, username, slug, password_medium)
+//   - Chinese(): Chinese localization rules (phone, idcard, bankcard, license_plate, etc.)
+//   - NamingConvention(): Code naming rules (snake, pascal, camel, kebab, upper_snake, variable)
+//
+// # Custom Rules
+//
+// Register custom validation rules:
+//
+//	v := vd.New(vd.SetRules(
+//	    vd.Rule{
+//	        Tag: "even",
+//	        Fn: func(fl vd.FieldLevel) bool {
+//	            return fl.Field().Int() % 2 == 0
+//	        },
+//	    },
+//	))
 package vd
 
 import (
