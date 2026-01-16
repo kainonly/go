@@ -37,9 +37,7 @@ jobs:
           exit 1
 
       - run: |
-          go clean -modcache
-          go mod download
-          go mod verify
+          go mod tidy
           go test -race -covermode atomic -coverprofile=covprofile ./...
         env:
           DATABASE_REDIS: redis://127.0.0.1:6379
