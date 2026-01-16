@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Run tests
+        run: go test ./... -v
+
+      - name: Extract version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Read release notes
+        id: notes
+        run: |
+          NOTES_FILE="RELEASE_NOTES_${{ steps.version.outputs.VERSION }}.md"
+          if [ -f "$NOTES_FILE" ]; then
+            echo "NOTES_FILE=$NOTES_FILE" >> $GITHUB_OUTPUT
+          else
+            echo "NOTES_FILE=CHANGELOG.md" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ${{ steps.notes.outputs.NOTES_FILE }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Go package index
+        run: |
+          curl -f "https://proxy.golang.org/github.com/kainonly/go/@v/${{ steps.version.outputs.VERSION }}.info" || true
