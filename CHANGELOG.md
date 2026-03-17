@@ -5,6 +5,11 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.2] - 2026-03-17
+
+### 修复 (Fixed)
+- **vd** - 修复 `sort` 规则，支持嵌套字段格式（如 `field.subfield:1`）
+
 ## [1.0.1] - 2026-01-16
 
 ### 新增功能 (Added)
@@ -122,5 +127,6 @@
 - **Fixed**: 问题修复
 - **Security**: 安全性相关的修复
 
+[1.0.2]: https://github.com/kainonly/go/releases/tag/v1.0.2
 [1.0.1]: https://github.com/kainonly/go/releases/tag/v1.0.1
 [1.0.0]: https://github.com/kainonly/go/releases/tag/v1.0.0
