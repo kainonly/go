@@ -208,7 +208,7 @@ func Sort() Rule {
 }
 
 var sortRegex = sync.OnceValue(func() *regexp.Regexp {
-	return regexp.MustCompile(`^[a-z_]+:(-1|1)$`)
+	return regexp.MustCompile(`^[a-z_]+(\.[a-z_]+)*:(-1|1)$`)
 })
 
 func sortValidation(fl FieldLevel) bool {
