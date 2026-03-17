@@ -147,7 +147,7 @@ func main() {
 
 | 规则 | Tag | 描述 |
 |------|-----|------|
-| `Sort()` | `sort` | 排序格式 `field:1` 或 `field:-1` |
+| `Sort()` | `sort` | 排序格式 `field:1`、`field:-1` 或 `field.sub:1` |
 | `Username()` | `username` | 用户名 (3-20字符) |
 | `Slug()` | `slug` | URL slug |
 | `ObjectID()` | `objectid` | MongoDB ObjectId |

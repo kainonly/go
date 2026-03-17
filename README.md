@@ -180,7 +180,7 @@ func main() {
 
 | Rule | Tag | Description |
 |------|-----|------|
-| `Sort()` | `sort` | Sort format: `field:1` or `field:-1` |
+| `Sort()` | `sort` | Sort format: `field:1`, `field:-1`, or `field.sub:1` |
 | `Username()` | `username` | Username (3-20 chars) |
 | `Slug()` | `slug` | URL slug |
 | `ObjectID()` | `objectid` | MongoDB ObjectId |
