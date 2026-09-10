@@ -20,6 +20,9 @@ import (
 
 // Ptr returns a pointer to the given value.
 // Useful for creating pointers to literals.
+//
+// Deprecated: The new builtin accepts a value expression since Go 1.26
+// (e.g. new(42)); use it instead.
 func Ptr[T any](i T) *T {
 	return &i
 }
