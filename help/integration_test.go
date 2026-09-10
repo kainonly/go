@@ -433,30 +433,30 @@ func TestSM4(t *testing.T) {
 	key := `f93c920868b4e5a88dfb27fd44b9f8db`
 	plaintext := "hello world"
 
-	t.Log(`明文`, plaintext)
+	t.Log("plaintext:", plaintext)
 	ciphertext, err := help.SM4Encrypt(key, plaintext)
 	assert.NoError(t, err)
-	t.Log(`密文`, ciphertext)
+	t.Log("ciphertext:", ciphertext)
 
-	// 解密
+	// Decrypt
 	decryptedText, err := help.SM4Decrypt(key, ciphertext)
 	assert.NoError(t, err)
-	t.Log(`解密结果`, decryptedText)
+	t.Log("decrypted:", decryptedText)
 
-	// 验证
+	// Verify
 	valid, err := help.SM4Verify(key, ciphertext, plaintext)
 	assert.NoError(t, err)
 	if !valid {
-		t.Fatal(`验证失败，解密结果与原文不一致`)
+		t.Fatal("verification failed: decrypted text does not match plaintext")
 	}
-	t.Log(`验证成功`)
+	t.Log("verification passed")
 
-	// 使用示例密钥进行测试
+	// Test with a known ciphertext
 	testCiphertext := "056df5b3d1b15e2567d0dcd6e6cfbeff"
 	testDecryptedText, err := help.SM4Decrypt(key, testCiphertext)
 	assert.NoError(t, err)
 	assert.Equal(t, testDecryptedText, plaintext)
-	t.Log(`测试解密结果`, testDecryptedText)
+	t.Log("test decrypted:", testDecryptedText)
 }
 
 func TestSM4_InvalidInputs(t *testing.T) {

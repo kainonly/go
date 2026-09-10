@@ -9,7 +9,7 @@ import (
 )
 
 // ============================================================================
-// Chinese Localization Rules (中国本地化验证规则)
+// Chinese Localization Rules
 // ============================================================================
 
 // BankCard validates Chinese bank card number (16-19 digits with Luhn check).
@@ -75,7 +75,7 @@ func licensePlateValidation(fl FieldLevel) bool {
 	return licensePlateRegex().MatchString(s)
 }
 
-// USCC validates Unified Social Credit Code (统一社会信用代码).
+// USCC validates Unified Social Credit Code.
 // 18-character code for Chinese organizations.
 // Example: "91310000MA1FL8TQ32"
 func USCC() Rule {
@@ -141,7 +141,7 @@ func chineseNameValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Password Strength Rules (密码强度验证规则)
+// Password Strength Rules
 // ============================================================================
 
 // PasswordWeak validates weak password (at least 6 chars).
@@ -220,7 +220,7 @@ func passwordStrongValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Special Format Rules (特殊格式验证规则)
+// Special Format Rules
 // ============================================================================
 
 // ObjectID validates MongoDB ObjectId (24 hex characters).
@@ -295,7 +295,7 @@ func versionValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Data Structure Rules (数据结构验证规则)
+// Data Structure Rules
 // ============================================================================
 
 // SafeString validates string contains no dangerous characters for injection.
@@ -416,7 +416,7 @@ func positiveDecimalValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Common Format Rules (常用格式验证规则)
+// Common Format Rules
 // ============================================================================
 
 // Domain validates domain name without protocol.
@@ -532,7 +532,7 @@ func colorValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Communication Rules (通信相关验证规则)
+// Communication Rules
 // ============================================================================
 
 // TelPhone validates telephone number (landline, Chinese format).
@@ -600,7 +600,7 @@ func weChatValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Address Rules (地址相关验证规则)
+// Address Rules
 // ============================================================================
 
 // ZipCode validates Chinese postal code (6 digits).
@@ -625,7 +625,7 @@ func zipCodeValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Code Rules (编码相关验证规则)
+// Code Rules
 // ============================================================================
 
 // Variable validates variable name (programming convention).
