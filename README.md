@@ -1,7 +1,7 @@
 # Go Utils
 
-[![CNB Cloud Build](https://cnb.cool/kainonly/go/-/badge/git/latest/ci/status/push)](https://cnb.cool/kainonly/go)
-[![Coverage](https://cnb.cool/kainonly/go/-/badge/git/latest/testing/unit/coverage)](https://cnb.cool/kainonly/go)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/kainonly/go/testing.yml?style=flat-square)](https://github.com/kainonly/go/actions/workflows/testing.yml)
+[![Coveralls github](https://img.shields.io/coveralls/github/kainonly/go.svg?style=flat-square)](https://coveralls.io/github/kainonly/go)
 [![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainonly/go?style=flat-square)](https://github.com/kainonly/go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kainonly/go?style=flat-square)](https://goreportcard.com/report/github.com/kainonly/go)
 [![Release](https://img.shields.io/github/v/release/kainonly/go.svg?style=flat-square)](https://github.com/kainonly/go)
