@@ -1,9 +1,8 @@
-// Package locker provides rate limiting and attempt counting with Redis storage.
+// Package locker 提供基于 Redis 存储的限流与尝试计数功能。
 //
-// It's useful for limiting login attempts, API rate limiting, or any scenario
-// where you need to track and limit the number of operations within a time window.
+// 适用于登录尝试限制、API 限流，或任何需要追踪并限制时间窗口内操作次数的场景。
 //
-// # Hertz Backend Setup
+// # Hertz 后端配置
 //
 //	// Initialize locker with Redis client
 //	lock := locker.New(redisClient)
@@ -34,17 +33,17 @@
 //		c.JSON(200, utils.H{"token": token})
 //	})
 //
-// # How It Works
+// # 工作原理
 //
-//   - Increment: Atomically increments counter, sets TTL on first call
-//   - Check: Returns ErrLocked if counter >= max
-//   - Delete: Clears the counter (e.g., after successful login)
+//   - Increment：原子递增计数器，首次调用时设置 TTL
+//   - Check：计数器达到上限时返回 ErrLocked
+//   - Delete：清空计数器（如登录成功后）
 //
-// # Security Notes
+// # 安全注意事项
 //
-//   - Use appropriate TTL based on your security requirements
-//   - Consider using IP + username combination for login limiting
-//   - The counter auto-expires after TTL, no manual cleanup needed
+//   - 根据安全需求设置合适的 TTL
+//   - 登录限制建议结合 IP 与用户名
+//   - 计数器在 TTL 后自动过期，无需手动清理
 package locker
 
 import (
@@ -56,21 +55,21 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// Errors returned by locker functions.
+// locker 函数返回的错误。
 var (
 	ErrNotExists = errors.New("locker: counter does not exist")
 	ErrLocked    = errors.New("locker: limit exceeded")
 )
 
-// Locker provides rate limiting and attempt counting with Redis storage.
+// Locker 提供基于 Redis 存储的限流与尝试计数。
 type Locker struct {
-	// RDb is the Redis client for storing counters.
+	// RDb 是存储计数器的 Redis 客户端。
 	RDb *redis.Client
-	// Prefix is the key prefix for all locker keys (default: "locker").
+	// Prefix 是所有 locker 键的前缀（默认："locker"）。
 	Prefix string
 }
 
-// New creates a new Locker instance with the given Redis client.
+// New 使用给定的 Redis 客户端创建新的 Locker 实例。
 func New(rdb *redis.Client, options ...Option) *Locker {
 	x := &Locker{
 		RDb:    rdb,
@@ -82,25 +81,25 @@ func New(rdb *redis.Client, options ...Option) *Locker {
 	return x
 }
 
-// Option is a function that configures a Locker instance.
+// Option 是用于配置 Locker 实例的函数。
 type Option func(x *Locker)
 
-// SetPrefix sets the Redis key prefix for locker keys.
-// Default is "locker", resulting in keys like "locker:login:user@example.com".
+// SetPrefix 设置 locker 键的 Redis 前缀。
+// 默认为 "locker"，生成形如 "locker:login:user@example.com" 的键。
 func SetPrefix(v string) Option {
 	return func(x *Locker) {
 		x.Prefix = v
 	}
 }
 
-// Key generates the full Redis key for a locker name.
-// Format: "{prefix}:{name}"
+// Key 根据名称生成完整的 Redis 键。
+// 格式："{prefix}:{name}"
 func (x *Locker) Key(name string) string {
 	return fmt.Sprintf("%s:%s", x.Prefix, name)
 }
 
-// incrWithExpire is a Lua script that atomically increments a counter
-// and sets expiration only if the key is new.
+// incrWithExpire 是一段 Lua 脚本，原子地递增计数器，
+// 且仅在键为新键时设置过期时间。
 var incrWithExpire = redis.NewScript(`
 local current = redis.call('INCR', KEYS[1])
 if current == 1 then
@@ -109,10 +108,9 @@ end
 return current
 `)
 
-// Increment atomically increments the counter for the given name.
-// On the first call, it sets the TTL for the counter.
-// Subsequent calls within the TTL window only increment without resetting TTL.
-// Returns the current count after incrementing.
+// Increment 原子递增指定名称的计数器。
+// 首次调用时设置计数器的 TTL，TTL 窗口内的后续调用只递增、不重置 TTL。
+// 返回递增后的当前计数。
 func (x *Locker) Increment(ctx context.Context, name string, ttl time.Duration) (int64, error) {
 	result, err := incrWithExpire.Run(ctx, x.RDb, []string{x.Key(name)}, ttl.Milliseconds()).Int64()
 	if err != nil {
@@ -121,14 +119,13 @@ func (x *Locker) Increment(ctx context.Context, name string, ttl time.Duration) 
 	return result, nil
 }
 
-// Check verifies if the counter has exceeded the maximum allowed value.
-// Returns nil if counter < max or counter doesn't exist.
-// Returns ErrLocked if counter >= max.
+// Check 校验计数器是否超过允许的最大值。
+// 计数器小于 max 或不存在时返回 nil；达到上限返回 ErrLocked。
 func (x *Locker) Check(ctx context.Context, name string, max int64) error {
 	result, err := x.RDb.Get(ctx, x.Key(name)).Int64()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			return nil // Key doesn't exist, not locked
+			return nil // 键不存在，未锁定
 		}
 		return err
 	}
@@ -138,8 +135,8 @@ func (x *Locker) Check(ctx context.Context, name string, max int64) error {
 	return nil
 }
 
-// Get returns the current counter value for the given name.
-// Returns 0 if the counter doesn't exist.
+// Get 返回指定名称的当前计数值。
+// 计数器不存在时返回 0。
 func (x *Locker) Get(ctx context.Context, name string) (int64, error) {
 	result, err := x.RDb.Get(ctx, x.Key(name)).Int64()
 	if err != nil {
@@ -151,9 +148,8 @@ func (x *Locker) Get(ctx context.Context, name string) (int64, error) {
 	return result, nil
 }
 
-// Delete removes the counter for the given name.
-// Returns the number of keys deleted (0 or 1).
-// Typically called after successful authentication to reset the counter.
+// Delete 删除指定名称的计数器，返回删除的键数（0 或 1）。
+// 通常在认证成功后调用以重置计数器。
 func (x *Locker) Delete(ctx context.Context, name string) int64 {
 	return x.RDb.Del(ctx, x.Key(name)).Val()
 }

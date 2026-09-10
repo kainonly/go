@@ -1,9 +1,9 @@
-// Package csrf provides CSRF (Cross-Site Request Forgery) protection middleware for Hertz.
+// Package csrf 为 Hertz 提供 CSRF（跨站请求伪造）防护中间件。
 //
-// It implements the Double Submit Cookie pattern using HMAC-SHA256.
-// Cookies are session-level and automatically cleared when the browser closes.
+// 基于 HMAC-SHA256 实现 Double Submit Cookie 模式。
+// Cookie 为会话级，浏览器关闭时自动清除。
 //
-// # Hertz Backend Setup
+// # Hertz 后端配置
 //
 //	// Initialize CSRF protection
 //	csrfProtect := csrf.New(
@@ -30,11 +30,11 @@
 //	api.PUT("/update", updateHandler)
 //	api.DELETE("/remove", removeHandler)
 //
-// # Angular Frontend Setup
+// # Angular 前端配置
 //
-// Angular has built-in XSRF support that works with default cookie/header names.
+// Angular 内置 XSRF 支持，可直接使用默认的 cookie/header 名称。
 //
-// 1. Configure HttpClient in app.config.ts:
+// 1. 在 app.config.ts 中配置 HttpClient：
 //
 //	import { provideHttpClient, withXsrfConfiguration } from '@angular/common/http';
 //
@@ -49,7 +49,7 @@
 //	  ]
 //	};
 //
-// 2. Create CSRF service:
+// 2. 创建 CSRF 服务：
 //
 //	@Injectable({ providedIn: 'root' })
 //	export class CsrfService {
@@ -60,7 +60,7 @@
 //	  }
 //	}
 //
-// 3. Get CSRF token on app initialization (app.component.ts):
+// 3. 在应用初始化时获取 CSRF token（app.component.ts）：
 //
 //	export class AppComponent implements OnInit {
 //	  constructor(private csrfService: CsrfService) {}
@@ -70,7 +70,7 @@
 //	  }
 //	}
 //
-// 4. Refresh CSRF token after login (recommended):
+// 4. 登录后刷新 CSRF token（推荐）：
 //
 //	login(credentials: LoginRequest) {
 //	  return this.http.post<LoginResponse>('/auth/login', credentials, {
@@ -81,18 +81,18 @@
 //	  );
 //	}
 //
-// 5. Ensure all HTTP requests include credentials:
+// 5. 确保所有 HTTP 请求都携带凭证：
 //
 //	this.http.post('/api/submit', data, { withCredentials: true })
 //
-// # Security Notes
+// # 安全注意事项
 //
-//   - Cookies are session-level (cleared when browser closes)
-//   - XSRF-TOKEN cookie is readable by JavaScript (HttpOnly=false)
-//   - XSRF-SALT cookie is HttpOnly=true for additional security
-//   - Both cookies use SameSite=Strict to prevent cross-site requests
-//   - Refresh CSRF token after login to prevent pre-auth token theft
-//   - Always use HTTPS in production
+//   - Cookie 为会话级（浏览器关闭时清除）
+//   - XSRF-TOKEN cookie 可被 JavaScript 读取（HttpOnly=false）
+//   - XSRF-SALT cookie 设置 HttpOnly=true，提供额外安全防护
+//   - 两个 cookie 均使用 SameSite=Strict 防止跨站请求
+//   - 登录后刷新 CSRF token，防止认证前的 token 被盗用
+//   - 生产环境务必使用 HTTPS
 package csrf
 
 import (
@@ -109,7 +109,7 @@ import (
 	"github.com/kainonly/go/help"
 )
 
-// Default configuration values.
+// 默认配置值。
 const (
 	DefaultCookieName = "XSRF-TOKEN"
 	DefaultSaltName   = "XSRF-SALT"
@@ -117,7 +117,7 @@ const (
 	DefaultSaltLength = 16
 )
 
-// Errors returned by csrf functions.
+// csrf 函数返回的错误。
 var (
 	ErrMissingHeader = errors.New("csrf: missing token in header")
 	ErrMissingSalt   = errors.New("csrf: missing salt cookie")
@@ -125,7 +125,7 @@ var (
 	ErrEmptyKey      = errors.New("csrf: secret key cannot be empty")
 )
 
-// Csrf provides CSRF protection using Double Submit Cookie pattern.
+// Csrf 基于 Double Submit Cookie 模式提供 CSRF 防护。
 type Csrf struct {
 	Key           string
 	CookieName    string
@@ -135,8 +135,8 @@ type Csrf struct {
 	IgnoreMethods map[string]bool
 }
 
-// New creates a new Csrf instance with the given options.
-// At minimum, SetKey must be provided with a secret key.
+// New 使用给定的选项创建一个新的 Csrf 实例。
+// 至少需要通过 SetKey 提供密钥。
 func New(options ...Option) *Csrf {
 	x := &Csrf{
 		CookieName: DefaultCookieName,
@@ -156,39 +156,39 @@ func New(options ...Option) *Csrf {
 	return x
 }
 
-// Option is a function that configures a Csrf instance.
+// Option 是用于配置 Csrf 实例的函数。
 type Option func(x *Csrf)
 
-// SetKey sets the secret key for HMAC signing.
-// The key should be at least 32 bytes for security.
+// SetKey 设置用于 HMAC 签名的密钥。
+// 出于安全考虑，密钥至少应为 32 字节。
 func SetKey(v string) Option {
 	return func(x *Csrf) {
 		x.Key = v
 	}
 }
 
-// SetCookieName sets the name of the token cookie.
+// SetCookieName 设置 token cookie 的名称。
 func SetCookieName(v string) Option {
 	return func(x *Csrf) {
 		x.CookieName = v
 	}
 }
 
-// SetSaltName sets the name of the salt cookie.
+// SetSaltName 设置 salt cookie 的名称。
 func SetSaltName(v string) Option {
 	return func(x *Csrf) {
 		x.SaltName = v
 	}
 }
 
-// SetHeaderName sets the expected header name for token verification.
+// SetHeaderName 设置验证 token 时使用的请求头名称。
 func SetHeaderName(v string) Option {
 	return func(x *Csrf) {
 		x.HeaderName = v
 	}
 }
 
-// SetIgnoreMethods sets which HTTP methods should skip CSRF verification.
+// SetIgnoreMethods 设置跳过 CSRF 验证的 HTTP 方法。
 func SetIgnoreMethods(methods []string) Option {
 	return func(x *Csrf) {
 		x.IgnoreMethods = map[string]bool{}
@@ -198,31 +198,31 @@ func SetIgnoreMethods(methods []string) Option {
 	}
 }
 
-// SetDomain sets the cookie domain.
+// SetDomain 设置 cookie 的域。
 func SetDomain(v string) Option {
 	return func(x *Csrf) {
 		x.Domain = v
 	}
 }
 
-// SetToken generates and sets CSRF cookies on the response.
-// Cookies are session-level (deleted when browser closes).
-// Call this on login or when the frontend needs a fresh token.
+// SetToken 生成 CSRF cookie 并写入响应。
+// Cookie 为会话级（浏览器关闭时删除）。
+// 在登录时或前端需要新 token 时调用。
 func (x *Csrf) SetToken(c *app.RequestContext) {
 	salt := help.Random(DefaultSaltLength)
 	c.SetCookie(x.SaltName, salt, 0, "/", x.Domain, protocol.CookieSameSiteStrictMode, true, true)
 	c.SetCookie(x.CookieName, x.Tokenize(salt), 0, "/", x.Domain, protocol.CookieSameSiteStrictMode, true, false)
 }
 
-// Tokenize creates an HMAC-SHA256 token from the given salt.
+// Tokenize 根据给定的 salt 生成 HMAC-SHA256 token。
 func (x *Csrf) Tokenize(salt string) string {
 	h := hmac.New(sha256.New, []byte(x.Key))
 	h.Write([]byte(salt))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// VerifyToken returns a Hertz middleware that validates CSRF tokens.
-// Safe methods (GET, HEAD, OPTIONS, TRACE) are skipped by default.
+// VerifyToken 返回用于校验 CSRF token 的 Hertz 中间件。
+// 安全方法（GET、HEAD、OPTIONS、TRACE）默认跳过校验。
 func (x *Csrf) VerifyToken() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		if x.IgnoreMethods[string(c.Method())] {

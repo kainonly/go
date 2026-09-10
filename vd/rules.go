@@ -9,11 +9,11 @@ import (
 )
 
 // ============================================================================
-// Chinese Localization Rules
+// 中国本地化验证规则
 // ============================================================================
 
-// BankCard validates Chinese bank card number (16-19 digits with Luhn check).
-// Example: "6222021234567890123"
+// BankCard 校验中国银行卡号（16-19 位数字，含 Luhn 校验）。
+// 示例："6222021234567890123"
 func BankCard() Rule {
 	return Rule{
 		Tag: "bankcard",
@@ -33,7 +33,7 @@ func bankcardValidation(fl FieldLevel) bool {
 	return luhnCheck(s)
 }
 
-// luhnCheck validates a number string using Luhn algorithm.
+// luhnCheck 使用 Luhn 算法校验数字字符串。
 func luhnCheck(s string) bool {
 	var sum int
 	alt := false
@@ -51,9 +51,9 @@ func luhnCheck(s string) bool {
 	return sum%10 == 0
 }
 
-// LicensePlate validates Chinese vehicle license plate number.
-// Supports regular plates and new energy vehicle plates.
-// Example: "京A12345", "沪A12345D", "粤B123456"
+// LicensePlate 校验中国车牌号。
+// 支持普通车牌和新能源汽车车牌。
+// 示例："京A12345"、"沪A12345D"、"粤B123456"
 func LicensePlate() Rule {
 	return Rule{
 		Tag: "license_plate",
@@ -62,8 +62,8 @@ func LicensePlate() Rule {
 }
 
 var licensePlateRegex = sync.OnceValue(func() *regexp.Regexp {
-	// Regular: 京A12345 (5 chars after province+letter)
-	// New energy: 京A123456 or 京AD12345 (6 chars)
+	// 普通车牌：京A12345（省份+字母后 5 个字符）
+	// 新能源车牌：京A123456 或 京AD12345（6 个字符）
 	return regexp.MustCompile(`^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼][A-Z][A-Z0-9]{5,6}$`)
 })
 
@@ -75,9 +75,9 @@ func licensePlateValidation(fl FieldLevel) bool {
 	return licensePlateRegex().MatchString(s)
 }
 
-// USCC validates Unified Social Credit Code.
-// 18-character code for Chinese organizations.
-// Example: "91310000MA1FL8TQ32"
+// USCC 校验统一社会信用代码。
+// 中国组织机构使用的 18 位代码。
+// 示例："91310000MA1FL8TQ32"
 func USCC() Rule {
 	return Rule{
 		Tag: "uscc",
@@ -97,8 +97,8 @@ func usccValidation(fl FieldLevel) bool {
 	return usccRegex().MatchString(s)
 }
 
-// ChineseWord validates that string contains only Chinese characters.
-// Example: "中国", "你好世界"
+// ChineseWord 校验字符串仅包含中文字符。
+// 示例："中国"、"你好世界"
 func ChineseWord() Rule {
 	return Rule{
 		Tag: "chinese",
@@ -119,8 +119,8 @@ func chineseWordValidation(fl FieldLevel) bool {
 	return true
 }
 
-// ChineseName validates Chinese person name (2-6 Chinese characters, may include ·).
-// Example: "张三", "欧阳修", "古力娜扎·迪丽热巴"
+// ChineseName 校验中文姓名（2-6 个汉字，可含 ·）。
+// 示例："张三"、"欧阳修"、"古力娜扎·迪丽热巴"
 func ChineseName() Rule {
 	return Rule{
 		Tag: "chinese_name",
@@ -141,11 +141,11 @@ func chineseNameValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Password Strength Rules
+// 密码强度验证规则
 // ============================================================================
 
-// PasswordWeak validates weak password (at least 6 chars).
-// Example: "123456"
+// PasswordWeak 校验弱密码（至少 6 个字符）。
+// 示例："123456"
 func PasswordWeak() Rule {
 	return Rule{
 		Tag: "password_weak",
@@ -161,9 +161,9 @@ func passwordWeakValidation(fl FieldLevel) bool {
 	return len(s) >= 6
 }
 
-// PasswordMedium validates medium strength password.
-// At least 8 chars, must contain letters and numbers.
-// Example: "password123"
+// PasswordMedium 校验中等强度密码。
+// 至少 8 个字符，须同时包含字母和数字。
+// 示例："password123"
 func PasswordMedium() Rule {
 	return Rule{
 		Tag: "password_medium",
@@ -188,9 +188,9 @@ func passwordMediumValidation(fl FieldLevel) bool {
 	return hasLetter && hasDigit
 }
 
-// PasswordStrong validates strong password.
-// At least 8 chars, must contain uppercase, lowercase, number, and special char.
-// Example: "Password123!"
+// PasswordStrong 校验强密码。
+// 至少 8 个字符，须同时包含大写字母、小写字母、数字和特殊字符。
+// 示例："Password123!"
 func PasswordStrong() Rule {
 	return Rule{
 		Tag: "password_strong",
@@ -220,12 +220,12 @@ func passwordStrongValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Special Format Rules
+// 特殊格式验证规则
 // ============================================================================
 
-// ObjectID validates MongoDB ObjectId (24 hex characters).
-// Note: validator has "mongodb" for connection string, this is for ObjectId.
-// Example: "507f1f77bcf86cd799439011"
+// ObjectID 校验 MongoDB ObjectId（24 位十六进制字符）。
+// 注意：validator 自带的 "mongodb" 用于连接字符串，此规则用于 ObjectId。
+// 示例："507f1f77bcf86cd799439011"
 func ObjectID() Rule {
 	return Rule{
 		Tag: "objectid",
@@ -245,8 +245,8 @@ func objectIDValidation(fl FieldLevel) bool {
 	return objectIDRegex().MatchString(s)
 }
 
-// Snowflake validates Snowflake ID (positive integer, typically 18-19 digits).
-// Example: "1234567890123456789"
+// Snowflake 校验 Snowflake ID（正整数，通常 18-19 位）。
+// 示例："1234567890123456789"
 func Snowflake() Rule {
 	return Rule{
 		Tag: "snowflake",
@@ -272,9 +272,9 @@ func snowflakeValidation(fl FieldLevel) bool {
 	return false
 }
 
-// Version validates semantic version format.
-// Note: validator has "semver" but this is a simpler version check.
-// Example: "1.0.0", "2.1.3"
+// Version 校验语义化版本格式。
+// 注意：validator 自带 "semver"，此规则是更简单的版本检查。
+// 示例："1.0.0"、"2.1.3"
 func Version() Rule {
 	return Rule{
 		Tag: "version",
@@ -295,12 +295,12 @@ func versionValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Data Structure Rules
+// 数据结构验证规则
 // ============================================================================
 
-// SafeString validates string contains no dangerous characters for injection.
-// Rejects: < > " ' ` ; & | $ \ and null bytes.
-// Example: "safe text 123"
+// SafeString 校验字符串不含注入攻击相关的危险字符。
+// 拒绝：< > " ' ` ; & | $ \ 以及空字节。
+// 示例："safe text 123"
 func SafeString() Rule {
 	return Rule{
 		Tag: "safe_string",
@@ -325,9 +325,9 @@ func safeStringValidation(fl FieldLevel) bool {
 	return true
 }
 
-// AlphaNumDash validates alphanumeric string with dashes and underscores.
-// More permissive than alphanum, useful for slugs and identifiers.
-// Example: "my-item_123"
+// AlphaNumDash 校验可含连字符和下划线的字母数字字符串。
+// 比 alphanum 更宽松，适用于 slug 和标识符。
+// 示例："my-item_123"
 func AlphaNumDash() Rule {
 	return Rule{
 		Tag: "alphanumdash",
@@ -347,8 +347,8 @@ func alphaNumDashValidation(fl FieldLevel) bool {
 	return alphaNumDashRegex().MatchString(s)
 }
 
-// AlphaNumSpace validates alphanumeric string with spaces.
-// Example: "Hello World 123"
+// AlphaNumSpace 校验可含空格的字母数字字符串。
+// 示例："Hello World 123"
 func AlphaNumSpace() Rule {
 	return Rule{
 		Tag: "alphanumspace",
@@ -368,8 +368,8 @@ func alphaNumSpaceValidation(fl FieldLevel) bool {
 	return alphaNumSpaceRegex().MatchString(s)
 }
 
-// Decimal validates decimal number string with optional precision.
-// Example: "123.45", "0.001"
+// Decimal 校验十进制数字字符串（可含小数部分）。
+// 示例："123.45"、"0.001"
 func Decimal() Rule {
 	return Rule{
 		Tag: "decimal",
@@ -389,8 +389,8 @@ func decimalValidation(fl FieldLevel) bool {
 	return decimalRegex().MatchString(s)
 }
 
-// PositiveDecimal validates positive decimal number string.
-// Example: "123.45", "0.001"
+// PositiveDecimal 校验正的十进制数字字符串。
+// 示例："123.45"、"0.001"
 func PositiveDecimal() Rule {
 	return Rule{
 		Tag: "positive_decimal",
@@ -410,18 +410,18 @@ func positiveDecimalValidation(fl FieldLevel) bool {
 	if !positiveDecimalRegex().MatchString(s) {
 		return false
 	}
-	// Check it's actually positive (not just "0.000")
+	// 确认是真正的正数（而非 "0.000"）
 	f, err := strconv.ParseFloat(s, 64)
 	return err == nil && f > 0
 }
 
 // ============================================================================
-// Common Format Rules
+// 常用格式验证规则
 // ============================================================================
 
-// Domain validates domain name without protocol.
-// Note: validator has "fqdn" but this is simpler domain check.
-// Example: "example.com", "sub.example.co.uk"
+// Domain 校验不含协议的域名。
+// 注意：validator 自带 "fqdn"，此规则是更简单的域名检查。
+// 示例："example.com"、"sub.example.co.uk"
 func Domain() Rule {
 	return Rule{
 		Tag: "domain",
@@ -441,8 +441,8 @@ func domainValidation(fl FieldLevel) bool {
 	return domainRegex().MatchString(s)
 }
 
-// FilePath validates file path format (Unix or Windows style).
-// Example: "/home/user/file.txt", "C:\Users\file.txt"
+// FilePath 校验文件路径格式（Unix 或 Windows 风格）。
+// 示例："/home/user/file.txt"、"C:\Users\file.txt"
 func FilePath() Rule {
 	return Rule{
 		Tag: "file_path",
@@ -451,8 +451,8 @@ func FilePath() Rule {
 }
 
 var filePathRegex = sync.OnceValue(func() *regexp.Regexp {
-	// Unix: /path/to/file or relative/path
-	// Windows: C:\path\to\file or \\server\share
+	// Unix：/path/to/file 或相对路径
+	// Windows：C:\path\to\file 或 \\server\share
 	return regexp.MustCompile(`^([a-zA-Z]:\\|\\\\|/)?[\w\-. /\\]+$`)
 })
 
@@ -464,8 +464,8 @@ func filePathValidation(fl FieldLevel) bool {
 	return filePathRegex().MatchString(s)
 }
 
-// FileName validates file name (no path separators).
-// Example: "document.pdf", "image_01.png"
+// FileName 校验文件名（不含路径分隔符）。
+// 示例："document.pdf"、"image_01.png"
 func FileName() Rule {
 	return Rule{
 		Tag: "filename",
@@ -488,8 +488,8 @@ func fileNameValidation(fl FieldLevel) bool {
 	return fileNameRegex().MatchString(s)
 }
 
-// FileExt validates file extension (with or without dot).
-// Example: ".pdf", "pdf", ".tar.gz"
+// FileExt 校验文件扩展名（可带或不带点）。
+// 示例：".pdf"、"pdf"、".tar.gz"
 func FileExt() Rule {
 	return Rule{
 		Tag: "file_ext",
@@ -509,9 +509,9 @@ func fileExtValidation(fl FieldLevel) bool {
 	return fileExtRegex().MatchString(s)
 }
 
-// Color validates color code (hex without # prefix).
-// Note: validator has "hexcolor" with #, this is without.
-// Example: "ff5733", "FFF", "abc123"
+// Color 校验颜色代码（不带 # 前缀的十六进制）。
+// 注意：validator 自带的 "hexcolor" 带 # 前缀，此规则不带。
+// 示例："ff5733"、"FFF"、"abc123"
 func Color() Rule {
 	return Rule{
 		Tag: "color",
@@ -532,11 +532,11 @@ func colorValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Communication Rules
+// 通信验证规则
 // ============================================================================
 
-// TelPhone validates telephone number (landline, Chinese format).
-// Example: "010-12345678", "0755-1234567", "02112345678"
+// TelPhone 校验座机号码（中国格式）。
+// 示例："010-12345678"、"0755-1234567"、"02112345678"
 func TelPhone() Rule {
 	return Rule{
 		Tag: "tel",
@@ -556,8 +556,8 @@ func telPhoneValidation(fl FieldLevel) bool {
 	return telPhoneRegex().MatchString(s)
 }
 
-// QQ validates QQ number (5-11 digits, not starting with 0).
-// Example: "12345", "1234567890"
+// QQ 校验 QQ 号（5-11 位数字，不以 0 开头）。
+// 示例："12345"、"1234567890"
 func QQ() Rule {
 	return Rule{
 		Tag: "qq",
@@ -577,9 +577,9 @@ func qqValidation(fl FieldLevel) bool {
 	return qqRegex().MatchString(s)
 }
 
-// WeChat validates WeChat ID format.
-// 6-20 chars, starts with letter, alphanumeric and underscore only.
-// Example: "wxid_abc123", "myWeChat_01"
+// WeChat 校验微信号格式。
+// 6-20 个字符，以字母开头，仅限字母、数字和下划线。
+// 示例："wxid_abc123"、"myWeChat_01"
 func WeChat() Rule {
 	return Rule{
 		Tag: "wechat",
@@ -600,11 +600,11 @@ func weChatValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Address Rules
+// 地址验证规则
 // ============================================================================
 
-// ZipCode validates Chinese postal code (6 digits).
-// Example: "100000", "518000"
+// ZipCode 校验中国邮政编码（6 位数字）。
+// 示例："100000"、"518000"
 func ZipCode() Rule {
 	return Rule{
 		Tag: "zipcode",
@@ -625,12 +625,12 @@ func zipCodeValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Code Rules
+// 代码命名规则
 // ============================================================================
 
-// Variable validates variable name (programming convention).
-// Starts with letter or underscore, alphanumeric and underscore only.
-// Example: "myVar", "_private", "MAX_VALUE"
+// Variable 校验变量名（编程命名惯例）。
+// 以字母或下划线开头，仅限字母、数字和下划线。
+// 示例："myVar"、"_private"、"MAX_VALUE"
 func Variable() Rule {
 	return Rule{
 		Tag: "variable",
@@ -650,8 +650,8 @@ func variableValidation(fl FieldLevel) bool {
 	return variableRegex().MatchString(s)
 }
 
-// PascalCase validates PascalCase format.
-// Example: "MyClass", "UserService"
+// PascalCase 校验 PascalCase 格式。
+// 示例："MyClass"、"UserService"
 func PascalCase() Rule {
 	return Rule{
 		Tag: "pascal",
@@ -671,8 +671,8 @@ func pascalCaseValidation(fl FieldLevel) bool {
 	return pascalCaseRegex().MatchString(s)
 }
 
-// CamelCase validates camelCase format.
-// Example: "myVariable", "getUserName"
+// CamelCase 校验 camelCase 格式。
+// 示例："myVariable"、"getUserName"
 func CamelCase() Rule {
 	return Rule{
 		Tag: "camel",
@@ -692,8 +692,8 @@ func camelCaseValidation(fl FieldLevel) bool {
 	return camelCaseRegex().MatchString(s)
 }
 
-// KebabCase validates kebab-case format.
-// Example: "my-component", "user-profile-card"
+// KebabCase 校验 kebab-case 格式。
+// 示例："my-component"、"user-profile-card"
 func KebabCase() Rule {
 	return Rule{
 		Tag: "kebab",
@@ -713,8 +713,8 @@ func kebabCaseValidation(fl FieldLevel) bool {
 	return kebabCaseRegex().MatchString(s)
 }
 
-// UpperSnake validates UPPER_SNAKE_CASE format.
-// Example: "MAX_VALUE", "HTTP_STATUS_OK"
+// UpperSnake 校验 UPPER_SNAKE_CASE 格式。
+// 示例："MAX_VALUE"、"HTTP_STATUS_OK"
 func UpperSnake() Rule {
 	return Rule{
 		Tag: "upper_snake",
@@ -735,52 +735,52 @@ func upperSnakeValidation(fl FieldLevel) bool {
 }
 
 // ============================================================================
-// Utility Functions
+// 工具函数
 // ============================================================================
 
-// All returns all available custom rules.
+// All 返回所有可用的自定义规则。
 func All() []Rule {
 	return []Rule{
-		// Original rules
+		// 原有规则
 		Snake(),
 		Sort(),
 		Phone(),
 		IDCard(),
 		Username(),
 		Slug(),
-		// Chinese localization
+		// 中国本地化
 		BankCard(),
 		LicensePlate(),
 		USCC(),
 		ChineseWord(),
 		ChineseName(),
-		// Password strength
+		// 密码强度
 		PasswordWeak(),
 		PasswordMedium(),
 		PasswordStrong(),
-		// Special formats
+		// 特殊格式
 		ObjectID(),
 		Snowflake(),
 		Version(),
-		// Data structure
+		// 数据结构
 		SafeString(),
 		AlphaNumDash(),
 		AlphaNumSpace(),
 		Decimal(),
 		PositiveDecimal(),
-		// Common formats
+		// 常用格式
 		Domain(),
 		FilePath(),
 		FileName(),
 		FileExt(),
 		Color(),
-		// Communication
+		// 通信
 		TelPhone(),
 		QQ(),
 		WeChat(),
-		// Address
+		// 地址
 		ZipCode(),
-		// Code naming
+		// 代码命名
 		Variable(),
 		PascalCase(),
 		CamelCase(),
@@ -789,7 +789,7 @@ func All() []Rule {
 	}
 }
 
-// Common returns commonly used rules (snake, sort, phone, idcard, username, slug, password_medium).
+// Common 返回常用规则（snake、sort、phone、idcard、username、slug、password_medium）。
 func Common() []Rule {
 	return []Rule{
 		Snake(),
@@ -802,7 +802,7 @@ func Common() []Rule {
 	}
 }
 
-// Chinese returns all Chinese localization rules.
+// Chinese 返回所有中国本地化规则。
 func Chinese() []Rule {
 	return []Rule{
 		Phone(),
@@ -819,7 +819,7 @@ func Chinese() []Rule {
 	}
 }
 
-// NamingConvention returns all naming convention rules.
+// NamingConvention 返回所有命名约定规则。
 func NamingConvention() []Rule {
 	return []Rule{
 		Snake(),
@@ -831,8 +831,8 @@ func NamingConvention() []Rule {
 	}
 }
 
-// NotBlank validates string is not empty and not only whitespace.
-// Example: "hello" (valid), "  " (invalid)
+// NotBlank 校验字符串非空且非纯空白字符。
+// 示例："hello"（有效）、"  "（无效）
 func NotBlank() Rule {
 	return Rule{
 		Tag: "notblank",

@@ -1,5 +1,5 @@
-// Package totp provides TOTP (Time-based One-Time Password) generation and validation.
-// It wraps github.com/pquerna/otp for RFC 6238 compliant implementation.
+// Package totp 提供 TOTP（基于时间的一次性密码）的生成与校验。
+// 封装 github.com/pquerna/otp，符合 RFC 6238 规范。
 package totp
 
 import (
@@ -9,26 +9,26 @@ import (
 	"github.com/pquerna/otp/totp"
 )
 
-// Key represents a TOTP key with its configuration.
+// Key 表示一个 TOTP 密钥及其配置。
 type Key struct {
 	*otp.Key
 }
 
-// GenerateOpts configures the key generation.
+// GenerateOpts 用于配置密钥生成。
 type GenerateOpts struct {
-	// Issuer is the name of the issuing organization (e.g., "MyApp").
+	// Issuer 是签发组织的名称（如 "MyApp"）。
 	Issuer string
-	// AccountName is the user's identifier (e.g., "user@example.com").
+	// AccountName 是用户标识（如 "user@example.com"）。
 	AccountName string
-	// SecretSize is the size of the secret in bytes. Default is 20.
+	// SecretSize 是密钥的字节长度，默认为 20。
 	SecretSize uint
-	// Algorithm is the hash algorithm. Default is SHA1.
+	// Algorithm 是哈希算法，默认为 SHA1。
 	Algorithm otp.Algorithm
-	// Digits is the number of digits in the OTP. Default is 6.
+	// Digits 是 OTP 的位数，默认为 6。
 	Digits otp.Digits
 }
 
-// GenerateSecret creates a new TOTP secret key.
+// GenerateSecret 创建一个新的 TOTP 密钥。
 func GenerateSecret(opts GenerateOpts) (*Key, error) {
 	genOpts := totp.GenerateOpts{
 		Issuer:      opts.Issuer,
@@ -50,28 +50,28 @@ func GenerateSecret(opts GenerateOpts) (*Key, error) {
 	return &Key{Key: key}, nil
 }
 
-// Validate checks if the passcode is valid for the given secret.
-// Uses a default time window of ±1 period (30 seconds).
+// Validate 校验给定密钥的 passcode 是否有效。
+// 默认时间窗口为 ±1 个周期（30 秒）。
 func Validate(passcode, secret string) bool {
 	return totp.Validate(passcode, secret)
 }
 
-// ValidateOpts configures the validation behavior.
+// ValidateOpts 用于配置校验行为。
 type ValidateOpts struct {
-	// Skew is the number of periods before/after current time to check. Default is 1.
+	// Skew 是当前时间前后允许校验的周期数，默认为 1。
 	Skew uint
-	// Digits is the expected number of digits. Default is 6.
+	// Digits 是期望的位数，默认为 6。
 	Digits otp.Digits
-	// Algorithm is the hash algorithm. Default is SHA1.
+	// Algorithm 是哈希算法，默认为 SHA1。
 	Algorithm otp.Algorithm
 }
 
-// ValidateWithOpts checks if the passcode is valid with custom options.
+// ValidateWithOpts 使用自定义选项校验 passcode 是否有效。
 func ValidateWithOpts(passcode, secret string, opts ValidateOpts) (bool, error) {
 	valOpts := totp.ValidateOpts{
 		Skew:      opts.Skew,
-		Digits:    otp.DigitsSix,     // Default to 6 digits
-		Algorithm: otp.AlgorithmSHA1, // Default to SHA1
+		Digits:    otp.DigitsSix,     // 默认 6 位
+		Algorithm: otp.AlgorithmSHA1, // 默认 SHA1
 	}
 	if opts.Digits != 0 {
 		valOpts.Digits = opts.Digits
@@ -82,7 +82,7 @@ func ValidateWithOpts(passcode, secret string, opts ValidateOpts) (bool, error) 
 	return totp.ValidateCustom(passcode, secret, time.Now(), valOpts)
 }
 
-// Generate creates a TOTP code for the given secret at the current time.
+// Generate 使用给定的密钥生成当前时间的 TOTP 验证码。
 func Generate(secret string) (string, error) {
 	return totp.GenerateCode(secret, time.Now())
 }

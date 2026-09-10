@@ -15,7 +15,7 @@ func TestHashAndVerify(t *testing.T) {
 	err = passlib.Verify("pass@VAN1235", hash)
 	assert.ErrorIs(t, err, passlib.ErrNotMatch)
 
-	// Test long password
+	// 测试超长密码
 	longPw := make([]byte, 100)
 	for i := range longPw {
 		longPw[i] = 'a'
@@ -51,15 +51,15 @@ func TestVerifyErrors(t *testing.T) {
 }
 
 func TestNeedsRehash(t *testing.T) {
-	// Hash with current parameters should not need rehash
+	// 使用当前参数的哈希不需要重新哈希
 	hash, err := passlib.Hash("password")
 	assert.NoError(t, err)
 	assert.False(t, passlib.NeedsRehash(hash))
 
-	// Hash with different parameters should need rehash
+	// 使用不同参数的哈希需要重新哈希
 	oldHash := `$argon2id$v=19$m=32768,t=4,p=1$NPCjKIcoU2z6rg6p8glOfg$jrbRcvsTq/ITJP414/xhNNwOtVeHYa478hPn8M6uJLA`
 	assert.True(t, passlib.NeedsRehash(oldHash))
 
-	// Invalid hash should need rehash
+	// 无效的哈希需要重新哈希
 	assert.True(t, passlib.NeedsRehash("invalid"))
 }

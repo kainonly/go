@@ -1,9 +1,9 @@
-// Package vd provides a configurable validator wrapper for go-playground/validator
-// with Hertz framework integration and custom validation rules support.
+// Package vd 提供对 go-playground/validator 的可配置封装，
+// 支持 Hertz 框架集成与自定义验证规则。
 //
-// # Hertz Integration
+// # Hertz 集成
 //
-// Use with Hertz server by passing the validator engine to server options:
+// 将验证器引擎传入 server 选项，即可在 Hertz 服务端中使用：
 //
 //	import (
 //	    "github.com/cloudwego/hertz/pkg/app/server"
@@ -47,16 +47,16 @@
 //	    h.Spin()
 //	}
 //
-// # Available Rule Groups
+// # 可用规则组
 //
-//   - All(): All available rules
-//   - Common(): Commonly used rules (snake, sort, phone, idcard, username, slug, password_medium)
-//   - Chinese(): Chinese localization rules (phone, idcard, bankcard, license_plate, etc.)
-//   - NamingConvention(): Code naming rules (snake, pascal, camel, kebab, upper_snake, variable)
+//   - All()：所有可用规则
+//   - Common()：常用规则（snake、sort、phone、idcard、username、slug、password_medium）
+//   - Chinese()：中国本地化规则（phone、idcard、bankcard、license_plate 等）
+//   - NamingConvention()：代码命名规则（snake、pascal、camel、kebab、upper_snake、variable）
 //
-// # Custom Rules
+// # 自定义规则
 //
-// Register custom validation rules:
+// 注册自定义验证规则：
 //
 //	v := vd.New(vd.SetRules(
 //	    vd.Rule{
@@ -76,21 +76,20 @@ import (
 	"github.com/hertz-contrib/binding/go_playground"
 )
 
-// ValidationFunc is a custom validation function type.
+// ValidationFunc 是自定义验证函数类型。
 type ValidationFunc = validator.Func
 
-// FieldLevel contains all the information and helper functions
-// to validate a field.
+// FieldLevel 包含校验字段所需的全部信息和辅助函数。
 type FieldLevel = validator.FieldLevel
 
-// Rule defines a custom validation rule.
+// Rule 定义一条自定义验证规则。
 type Rule struct {
 	Tag  string
 	Fn   ValidationFunc
 	Call bool // CallValidationEvenIfNull
 }
 
-// Option configures the Validator.
+// Option 用于配置 Validator。
 type Option func(*options)
 
 type options struct {
@@ -98,28 +97,28 @@ type options struct {
 	rules []Rule
 }
 
-// SetTag sets the validation struct tag name.
-// Default is "vd".
+// SetTag 设置验证使用的 struct tag 名称。
+// 默认为 "vd"。
 func SetTag(tag string) Option {
 	return func(o *options) {
 		o.tag = tag
 	}
 }
 
-// SetRules sets the custom validation rules.
+// SetRules 设置自定义验证规则。
 func SetRules(rules ...Rule) Option {
 	return func(o *options) {
 		o.rules = append(o.rules, rules...)
 	}
 }
 
-// Validator wraps go-playground validator with custom configuration.
+// Validator 封装 go-playground validator，支持自定义配置。
 type Validator struct {
 	engine *go_playground.Validator
 	core   *validator.Validate
 }
 
-// New creates a new Validator with the given options.
+// New 根据给定选项创建新的 Validator。
 func New(opts ...Option) *Validator {
 	o := &options{
 		tag: "vd",
@@ -132,7 +131,7 @@ func New(opts ...Option) *Validator {
 	vd.SetValidateTag(o.tag)
 	core := vd.Engine().(*validator.Validate)
 
-	// Register custom rules
+	// 注册自定义规则
 	for _, rule := range o.rules {
 		if rule.Call {
 			core.RegisterValidation(rule.Tag, rule.Fn, true)
@@ -147,27 +146,27 @@ func New(opts ...Option) *Validator {
 	}
 }
 
-// Engine returns the underlying go-playground validator for Hertz.
+// Engine 返回供 Hertz 使用的底层 go-playground validator。
 func (v *Validator) Engine() *go_playground.Validator {
 	return v.engine
 }
 
-// Core returns the underlying go-playground/validator/v10 instance.
+// Core 返回底层的 go-playground/validator/v10 实例。
 func (v *Validator) Core() *validator.Validate {
 	return v.core
 }
 
-// Validate validates a struct.
+// Validate 校验一个 struct。
 func (v *Validator) Validate(obj any) error {
 	return v.core.Struct(obj)
 }
 
-// ValidateVar validates a single variable using tag style validation.
+// ValidateVar 使用 tag 风格校验单个变量。
 func (v *Validator) ValidateVar(field any, tag string) error {
 	return v.core.Var(field, tag)
 }
 
-// RegisterRule registers a custom validation rule dynamically.
+// RegisterRule 动态注册一条自定义验证规则。
 func (v *Validator) RegisterRule(rule Rule) error {
 	if rule.Call {
 		return v.core.RegisterValidation(rule.Tag, rule.Fn, true)
@@ -175,10 +174,10 @@ func (v *Validator) RegisterRule(rule Rule) error {
 	return v.core.RegisterValidation(rule.Tag, rule.Fn)
 }
 
-// Preset validation rules
+// 预设验证规则
 
-// Snake validates snake_case format (lowercase letters and underscores only).
-// Example: "user_name", "created_at"
+// Snake 校验 snake_case 格式（仅小写字母和下划线）。
+// 示例："user_name"、"created_at"
 func Snake() Rule {
 	return Rule{
 		Tag: "snake",
@@ -198,8 +197,8 @@ func snakeValidation(fl FieldLevel) bool {
 	return snakeRegex().MatchString(s)
 }
 
-// Sort validates sort format: "field_name:1" or "field_name:-1"
-// Example: "created_at:1", "name:-1"
+// Sort 校验排序格式："field_name:1" 或 "field_name:-1"
+// 示例："created_at:1"、"name:-1"
 func Sort() Rule {
 	return Rule{
 		Tag: "sort",
@@ -219,8 +218,8 @@ func sortValidation(fl FieldLevel) bool {
 	return sortRegex().MatchString(s)
 }
 
-// Phone validates Chinese mobile phone number format.
-// Example: "13800138000"
+// Phone 校验中国手机号格式。
+// 示例："13800138000"
 func Phone() Rule {
 	return Rule{
 		Tag: "phone",
@@ -240,8 +239,8 @@ func phoneValidation(fl FieldLevel) bool {
 	return phoneRegex().MatchString(s)
 }
 
-// IDCard validates Chinese ID card number (18 digits).
-// Example: "110101199003077758"
+// IDCard 校验中国身份证号（18 位）。
+// 示例："110101199003077758"
 func IDCard() Rule {
 	return Rule{
 		Tag: "idcard",
@@ -261,8 +260,8 @@ func idcardValidation(fl FieldLevel) bool {
 	return idcardRegex().MatchString(s)
 }
 
-// Username validates username format (alphanumeric, underscore, 3-20 chars).
-// Example: "john_doe", "user123"
+// Username 校验用户名格式（字母、数字、下划线，3-20 个字符）。
+// 示例："john_doe"、"user123"
 func Username() Rule {
 	return Rule{
 		Tag: "username",
@@ -282,8 +281,8 @@ func usernameValidation(fl FieldLevel) bool {
 	return usernameRegex().MatchString(s)
 }
 
-// Slug validates URL slug format (lowercase, numbers, hyphens).
-// Example: "my-blog-post", "article-123"
+// Slug 校验 URL slug 格式（小写字母、数字、连字符）。
+// 示例："my-blog-post"、"article-123"
 func Slug() Rule {
 	return Rule{
 		Tag: "slug",
@@ -303,7 +302,7 @@ func slugValidation(fl FieldLevel) bool {
 	return slugRegex().MatchString(s)
 }
 
-// Default creates a Validator with preset rules (snake, sort).
+// Default 创建带预设规则（snake、sort）的 Validator。
 func Default() *Validator {
 	return New(
 		SetRules(Snake(), Sort()),

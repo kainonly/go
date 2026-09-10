@@ -60,7 +60,7 @@ func TestVerify(t *testing.T) {
 	assert.Equal(t, userId2, claims2.ActiveId)
 	assert.Equal(t, x2.Issuer, claims2.Issuer)
 
-	// Cross-verification should fail (different keys)
+	// 交叉验证应失败（密钥不同）
 	_, err = x1.Verify(otherToken)
 	assert.Error(t, err)
 	_, err = x2.Verify(token)
@@ -68,7 +68,7 @@ func TestVerify(t *testing.T) {
 }
 
 func TestVerify_InvalidIssuer(t *testing.T) {
-	// Create a token with x1's key but different issuer
+	// 使用 x1 的密钥但不同的 issuer 创建令牌
 	x3 := passport.New(
 		passport.SetIssuer("other"),
 		passport.SetKey(key1),
@@ -76,13 +76,13 @@ func TestVerify_InvalidIssuer(t *testing.T) {
 	tokenOther, err := x3.Create(passport.NewClaims(userId1, time.Hour*2))
 	assert.NoError(t, err)
 
-	// Verify with x1 should fail due to issuer mismatch
+	// 用 x1 验证应因 issuer 不匹配而失败
 	_, err = x1.Verify(tokenOther)
 	assert.ErrorIs(t, err, passport.ErrInvalidIssuer)
 }
 
 func TestVerify_InvalidSigningMethod_HS384(t *testing.T) {
-	// HS384 should be rejected (only HS256 is allowed)
+	// HS384 应被拒绝（仅允许 HS256）
 	token := jwt.NewWithClaims(jwt.SigningMethodHS384, passport.Claims{
 		ActiveId: userId1,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -101,7 +101,7 @@ func TestVerify_InvalidSigningMethod_HS384(t *testing.T) {
 }
 
 func TestVerify_InvalidSigningMethod_ES256(t *testing.T) {
-	// ECDSA should be rejected
+	// ECDSA 应被拒绝
 	ecPKey := `-----BEGIN EC PRIVATE KEY-----
 MHcCAQEEIAh5qA3rmqQQuu0vbKV/+zouz/y/Iy2pLpIcWUSyImSwoAoGCCqGSM49
 AwEHoUQDQgAEYD54V/vp+54P9DXarYqx4MPcm+HKRIQzNasYSoRQHQ/6S6Ps8tpM
@@ -146,7 +146,7 @@ func TestNewClaims(t *testing.T) {
 	assert.NotNil(t, claims.ExpiresAt)
 	assert.NotNil(t, claims.IssuedAt)
 	assert.NotNil(t, claims.NotBefore)
-	// ExpiresAt should be approximately 1 hour from now
+	// ExpiresAt 应约为当前时间 1 小时之后
 	assert.True(t, claims.ExpiresAt.Time.After(time.Now().Add(59*time.Minute)))
 	assert.True(t, claims.ExpiresAt.Time.Before(time.Now().Add(61*time.Minute)))
 }

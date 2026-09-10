@@ -1,5 +1,5 @@
-// Package passlib provides password hashing using Argon2id algorithm.
-// Argon2id is the recommended password hashing algorithm by OWASP.
+// Package passlib 使用 Argon2id 算法提供密码哈希。
+// Argon2id 是 OWASP 推荐的密码哈希算法。
 package passlib
 
 import (
@@ -13,15 +13,14 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// Default parameters for Argon2id hashing.
-// These values follow OWASP recommendations.
+// Argon2id 哈希的默认参数，遵循 OWASP 建议。
 var (
 	DefaultMemoryCost uint32 = 65536 // 64 MB
 	DefaultTimeCost   uint32 = 4
 	DefaultThreads    uint8  = 1
 )
 
-// Errors returned by passlib functions.
+// passlib 函数返回的错误。
 var (
 	ErrInvalidHash         = errors.New("passlib: unable to parse hash value")
 	ErrIncompatibleVariant = errors.New("passlib: hash variant is not compatible")
@@ -29,9 +28,8 @@ var (
 	ErrNotMatch            = errors.New("passlib: password does not match hash")
 )
 
-// Hash generates an Argon2id hash of the password using default parameters.
-// Returns a PHC-formatted string that includes the algorithm, version,
-// parameters, salt, and hash.
+// Hash 使用默认参数生成密码的 Argon2id 哈希。
+// 返回包含算法、版本、参数、盐值和哈希的 PHC 格式字符串。
 func Hash(password string) (string, error) {
 	salt := make([]byte, 16)
 	if _, err := rand.Read(salt); err != nil {
@@ -47,8 +45,8 @@ func Hash(password string) (string, error) {
 	), nil
 }
 
-// Verify checks if the password matches the given hash.
-// Returns nil if the password matches, or an error otherwise.
+// Verify 校验密码是否与给定哈希匹配。
+// 匹配返回 nil，否则返回错误。
 func Verify(password string, hash string) error {
 	memory, time, threads, salt, key, err := parseHash(hash)
 	if err != nil {
@@ -61,8 +59,8 @@ func Verify(password string, hash string) error {
 	return nil
 }
 
-// NeedsRehash checks if the hash was created with outdated parameters
-// and should be rehashed with current default parameters.
+// NeedsRehash 判断哈希是否由过时的参数生成、
+// 需要用当前默认参数重新哈希。
 func NeedsRehash(hash string) bool {
 	memory, time, threads, _, _, err := parseHash(hash)
 	if err != nil {
@@ -71,7 +69,7 @@ func NeedsRehash(hash string) bool {
 	return memory != DefaultMemoryCost || time != DefaultTimeCost || threads != DefaultThreads
 }
 
-// parseHash extracts parameters from a PHC-formatted Argon2id hash string.
+// parseHash 从 PHC 格式的 Argon2id 哈希字符串中解析参数。
 func parseHash(hash string) (memory, time uint32, threads uint8, salt, key []byte, err error) {
 	parts := strings.Split(hash, "$")
 	if len(parts) != 6 {

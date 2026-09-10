@@ -1,9 +1,9 @@
-// Package captcha provides verification code management with Redis storage.
+// Package captcha 提供基于 Redis 存储的验证码管理。
 //
-// It supports creating, verifying, and deleting captcha codes with automatic expiration.
-// Verification is atomic and one-time (code is deleted after successful verification).
+// 支持创建、验证和删除验证码，验证码会自动过期。
+// 验证是原子性且一次性的（验证成功后验证码即被删除）。
 //
-// # Hertz Backend Setup
+// # Hertz 后端配置
 //
 //	// Initialize captcha with Redis client
 //	cap := captcha.New(redisClient)
@@ -28,7 +28,7 @@
 //		c.JSON(200, utils.H{"message": "verified"})
 //	})
 //
-// # Angular Frontend Setup
+// # Angular 前端配置
 //
 //	// Send captcha request
 //	sendCaptcha(email: string) {
@@ -40,12 +40,12 @@
 //	  return this.http.post('/captcha/verify', null, { params: { email, code } });
 //	}
 //
-// # Security Notes
+// # 安全注意事项
 //
-//   - Codes are deleted after successful verification (one-time use)
-//   - Use appropriate TTL (e.g., 5 minutes) to limit attack window
-//   - Consider rate limiting to prevent brute force attacks
-//   - Use Redis key prefix to namespace different captcha types
+//   - 验证码在验证成功后即被删除（一次性使用）
+//   - 使用合适的 TTL（如 5 分钟）缩小攻击窗口
+//   - 建议配合限流防止暴力破解
+//   - 使用 Redis 键前缀隔离不同类型的验证码
 package captcha
 
 import (
@@ -57,21 +57,21 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// Errors returned by captcha functions.
+// captcha 函数返回的错误。
 var (
 	ErrNotExists   = errors.New("captcha: code does not exist or expired")
 	ErrInvalidCode = errors.New("captcha: invalid code")
 )
 
-// Captcha provides verification code management with Redis storage.
+// Captcha 提供基于 Redis 存储的验证码管理。
 type Captcha struct {
-	// RDb is the Redis client for storing captcha codes.
+	// RDb 是用于存储验证码的 Redis 客户端。
 	RDb *redis.Client
-	// Prefix is the key prefix for all captcha keys (default: "captcha").
+	// Prefix 是所有验证码键的键前缀（默认值："captcha"）。
 	Prefix string
 }
 
-// New creates a new Captcha instance with the given Redis client.
+// New 使用给定的 Redis 客户端创建一个新的 Captcha 实例。
 func New(rdb *redis.Client, options ...Option) *Captcha {
 	x := &Captcha{
 		RDb:    rdb,
@@ -83,42 +83,42 @@ func New(rdb *redis.Client, options ...Option) *Captcha {
 	return x
 }
 
-// Option is a function that configures a Captcha instance.
+// Option 是用于配置 Captcha 实例的函数。
 type Option func(x *Captcha)
 
-// SetPrefix sets the Redis key prefix for captcha keys.
-// Default is "captcha", resulting in keys like "captcha:login:user@example.com".
+// SetPrefix 设置验证码键的 Redis 键前缀。
+// 默认为 "captcha"，生成的键形如 "captcha:login:user@example.com"。
 func SetPrefix(v string) Option {
 	return func(x *Captcha) {
 		x.Prefix = v
 	}
 }
 
-// Key generates the full Redis key for a captcha name.
-// Format: "{prefix}:{name}"
+// Key 生成验证码名称对应的完整 Redis 键。
+// 格式："{prefix}:{name}"
 func (x *Captcha) Key(name string) string {
 	return fmt.Sprintf("%s:%s", x.Prefix, name)
 }
 
-// Create stores a captcha code with the given name and TTL.
-// If a code already exists for this name, it will be overwritten.
-// Returns "OK" on success.
+// Create 以给定的名称和 TTL 存储验证码。
+// 如果该名称下已存在验证码，将被覆盖。
+// 成功时返回 "OK"。
 func (x *Captcha) Create(ctx context.Context, name string, code string, ttl time.Duration) string {
 	return x.RDb.Set(ctx, x.Key(name), code, ttl).Val()
 }
 
-// Exists checks if a captcha code exists for the given name.
-// Note: This does not consume the code. Use Verify for actual verification.
+// Exists 检查给定名称的验证码是否存在。
+// 注意：此操作不会消耗验证码，实际验证请使用 Verify。
 func (x *Captcha) Exists(ctx context.Context, name string) bool {
 	return x.RDb.Exists(ctx, x.Key(name)).Val() != 0
 }
 
-// Verify checks if the provided code matches the stored captcha.
-// On successful verification, the code is automatically deleted (one-time use).
-// Returns ErrNotExists if code doesn't exist or expired.
-// Returns ErrInvalidCode if code doesn't match.
+// Verify 检查提供的验证码与存储的验证码是否匹配。
+// 验证成功后，验证码会被自动删除（一次性使用）。
+// 如果验证码不存在或已过期，返回 ErrNotExists。
+// 如果验证码不匹配，返回 ErrInvalidCode。
 func (x *Captcha) Verify(ctx context.Context, name string, code string) error {
-	// Use GetDel for atomic get-and-delete operation
+	// 使用 GetDel 实现原子性的读取并删除操作
 	result, err := x.RDb.GetDel(ctx, x.Key(name)).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -132,8 +132,8 @@ func (x *Captcha) Verify(ctx context.Context, name string, code string) error {
 	return nil
 }
 
-// Delete removes a captcha code by name.
-// Returns the number of keys deleted (0 or 1).
+// Delete 根据名称删除验证码。
+// 返回删除的键数量（0 或 1）。
 func (x *Captcha) Delete(ctx context.Context, name string) int64 {
 	return x.RDb.Del(ctx, x.Key(name)).Val()
 }

@@ -306,7 +306,7 @@ func TestCombinedWithBuiltInRules(t *testing.T) {
 		Age   int    `vd:"gte=0,lte=150"`
 	}
 
-	// Valid case
+	// 有效用例
 	err := v.Validate(User{
 		Name:  "user_name",
 		Email: "test@example.com",
@@ -314,7 +314,7 @@ func TestCombinedWithBuiltInRules(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	// Invalid snake case
+	// 无效的 snake case
 	err = v.Validate(User{
 		Name:  "UserName",
 		Email: "test@example.com",
@@ -322,7 +322,7 @@ func TestCombinedWithBuiltInRules(t *testing.T) {
 	})
 	assert.Error(t, err)
 
-	// Invalid email
+	// 无效的邮箱
 	err = v.Validate(User{
 		Name:  "user_name",
 		Email: "invalid",
@@ -330,7 +330,7 @@ func TestCombinedWithBuiltInRules(t *testing.T) {
 	})
 	assert.Error(t, err)
 
-	// Invalid age
+	// 无效的年龄
 	err = v.Validate(User{
 		Name:  "user_name",
 		Email: "test@example.com",

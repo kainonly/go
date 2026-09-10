@@ -21,8 +21,9 @@ DATABASE_REDIS=redis://127.0.0.1:6379 go test -race ./...
 
 ## 文档约定
 
-- 包 doc 注释（godoc）使用英文——它是发布到 pkg.go.dev 的公开接口文档；AGENTS.md、Issue/PR 等内部文档使用中文。
-- 详细用法保留在包 doc 注释中，不建立 docs 目录。新增功能时用 `# Heading` godoc 语法补充可运行示例；涉及前端对接的包（`captcha`、`csrf`、`passport`）应同时给出 Hertz 后端与 Angular 前端两套示例。
+- 所有注释与文档使用中文，包括包 doc 注释（godoc）、README、AGENTS.md、Issue/PR 等；代码中的错误信息等字符串字面量保持英文。
+- 详细用法保留在包 doc 注释中，不建立 docs 目录。新增功能时用 `# 标题` godoc 语法补充可运行示例；涉及前端对接的包（`captcha`、`csrf`、`passport`）应同时给出 Hertz 后端与 Angular 前端两套示例。
+- `Deprecated:` 弃用标记保持英文原词（gopls/staticcheck 依赖它识别），其后的描述用中文。
 - 仓库不维护 CHANGELOG，Release Notes 由 release workflow 自动生成。
 - 提交信息使用英文 type 前缀 + 中文描述（如 `chore: 精简项目结构`）。
 

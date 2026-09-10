@@ -29,7 +29,7 @@ func TestCipher_Encode(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, encryptedText)
 
-	// Test empty data
+	// 测试空数据
 	emptyCt, err := x1.Encode([]byte{})
 	assert.NoError(t, err)
 	assert.NotEmpty(t, emptyCt)
@@ -40,15 +40,15 @@ func TestCipher_Decode(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, text, string(decryptedText))
 
-	// Wrong key should fail
+	// 错误的密钥应失败
 	_, err = x2.Decode(encryptedText)
 	assert.Error(t, err)
 
-	// Invalid base64 should fail
+	// 无效的 base64 应失败
 	_, err = x1.Decode("@@@notbase64@@@")
 	assert.Error(t, err)
 
-	// Ciphertext too short should fail
-	_, err = x1.Decode("YWJj") // "abc" in base64
+	// 密文过短应失败
+	_, err = x1.Decode("YWJj") // "abc" 的 base64 编码
 	assert.ErrorIs(t, err, cipher.ErrCiphertextTooShort)
 }

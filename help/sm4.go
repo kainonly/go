@@ -9,7 +9,7 @@ import (
 	"github.com/emmansun/gmsm/sm4"
 )
 
-// SM4 related errors.
+// SM4 相关错误。
 var (
 	ErrSM4InvalidKey        = errors.New("sm4: invalid key, must be 32 hex characters (16 bytes)")
 	ErrSM4InvalidCiphertext = errors.New("sm4: invalid ciphertext")
@@ -17,9 +17,9 @@ var (
 	ErrSM4EmptyData         = errors.New("sm4: data is empty")
 )
 
-// SM4Encrypt encrypts plaintext using SM4-ECB mode with PKCS5 padding.
-// The key must be a 32-character hex string (16 bytes).
-// Returns hex-encoded ciphertext.
+// SM4Encrypt 使用 SM4-ECB 模式加 PKCS5 填充加密明文。
+// 密钥必须是 32 个字符的十六进制字符串（16 字节）。
+// 返回十六进制编码的密文。
 func SM4Encrypt(hexkey string, plaintext string) (string, error) {
 	key, err := hex.DecodeString(hexkey)
 	if err != nil {
@@ -41,10 +41,10 @@ func SM4Encrypt(hexkey string, plaintext string) (string, error) {
 	return hex.EncodeToString(content), nil
 }
 
-// SM4Decrypt decrypts ciphertext using SM4-ECB mode with PKCS5 padding.
-// The key must be a 32-character hex string (16 bytes).
-// The ciphertext must be hex-encoded.
-// Returns the decrypted plaintext.
+// SM4Decrypt 使用 SM4-ECB 模式加 PKCS5 填充解密密文。
+// 密钥必须是 32 个字符的十六进制字符串（16 字节）。
+// 密文必须是十六进制编码。
+// 返回解密后的明文。
 func SM4Decrypt(hexkey string, ciphertext string) (string, error) {
 	key, err := hex.DecodeString(hexkey)
 	if err != nil {
@@ -77,8 +77,8 @@ func SM4Decrypt(hexkey string, ciphertext string) (string, error) {
 	return string(unpadding), nil
 }
 
-// SM4Verify decrypts and compares ciphertext with expected plaintext.
-// Returns true if the decrypted text matches the plaintext.
+// SM4Verify 解密密文并与预期明文比较。
+// 解密后的文本与明文匹配时返回 true。
 func SM4Verify(key string, ciphertext string, plaintext string) (bool, error) {
 	decryptText, err := SM4Decrypt(key, ciphertext)
 	if err != nil {
@@ -87,13 +87,13 @@ func SM4Verify(key string, ciphertext string, plaintext string) (bool, error) {
 	return decryptText == plaintext, nil
 }
 
-// ecb implements ECB (Electronic Codebook) mode for block ciphers.
+// ecb 为分组密码实现 ECB（Electronic Codebook）模式。
 type ecb struct {
 	b         cipher.Block
 	blockSize int
 }
 
-// newECB creates a new ECB mode instance.
+// newECB 创建新的 ECB 模式实例。
 func newECB(b cipher.Block) *ecb {
 	return &ecb{
 		b:         b,
@@ -145,14 +145,14 @@ func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
 	}
 }
 
-// pkcs5Padding adds PKCS5/PKCS7 padding to data.
+// pkcs5Padding 为数据添加 PKCS5/PKCS7 填充。
 func pkcs5Padding(data []byte, blockSize int) []byte {
 	padding := blockSize - len(data)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(data, padtext...)
 }
 
-// pkcs5UnPadding removes PKCS5/PKCS7 padding from data.
+// pkcs5UnPadding 移除数据的 PKCS5/PKCS7 填充。
 func pkcs5UnPadding(data []byte) ([]byte, error) {
 	length := len(data)
 	if length == 0 {
@@ -162,7 +162,7 @@ func pkcs5UnPadding(data []byte) ([]byte, error) {
 	if unpadding > length || unpadding == 0 {
 		return nil, ErrSM4InvalidPadding
 	}
-	// Validate padding bytes
+	// 校验填充字节
 	for i := length - unpadding; i < length; i++ {
 		if data[i] != byte(unpadding) {
 			return nil, ErrSM4InvalidPadding

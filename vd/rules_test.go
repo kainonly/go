@@ -8,7 +8,7 @@ import (
 )
 
 // ============================================================================
-// Chinese Localization Rules Tests
+// 中文本地化规则测试
 // ============================================================================
 
 func TestBankCardValidation(t *testing.T) {
@@ -23,8 +23,8 @@ func TestBankCardValidation(t *testing.T) {
 		value   string
 		wantErr bool
 	}{
-		{"valid 16 digits", "6222021234567890", true}, // random number, Luhn may fail
-		{"valid luhn", "4532015112830366", false},     // valid Luhn
+		{"valid 16 digits", "6222021234567890", true}, // 随机数字，Luhn 校验可能失败
+		{"valid luhn", "4532015112830366", false},     // 有效的 Luhn
 		{"invalid too short", "622202123456", true},
 		{"invalid too long", "62220212345678901234", true},
 		{"invalid with letters", "622202123456789a", true},
@@ -174,7 +174,7 @@ func TestChineseNameValidation(t *testing.T) {
 }
 
 // ============================================================================
-// Password Strength Rules Tests
+// 密码强度规则测试
 // ============================================================================
 
 func TestPasswordWeakValidation(t *testing.T) {
@@ -272,7 +272,7 @@ func TestPasswordStrongValidation(t *testing.T) {
 }
 
 // ============================================================================
-// Special Format Rules Tests
+// 特殊格式规则测试
 // ============================================================================
 
 func TestObjectIDValidation(t *testing.T) {
@@ -317,7 +317,7 @@ func TestSnowflakeValidation(t *testing.T) {
 		Field int64 `vd:"snowflake"`
 	}
 
-	// String tests
+	// 字符串测试
 	stringTests := []struct {
 		name    string
 		value   string
@@ -341,7 +341,7 @@ func TestSnowflakeValidation(t *testing.T) {
 		})
 	}
 
-	// Int64 tests
+	// Int64 测试
 	t.Run("int64_valid", func(t *testing.T) {
 		err := v.Validate(Int64Struct{Field: 1234567890123456789})
 		assert.NoError(t, err)
@@ -385,7 +385,7 @@ func TestVersionValidation(t *testing.T) {
 }
 
 // ============================================================================
-// Data Structure Rules Tests
+// 数据结构规则测试
 // ============================================================================
 
 func TestSafeStringValidation(t *testing.T) {
@@ -453,7 +453,7 @@ func TestDecimalValidation(t *testing.T) {
 }
 
 // ============================================================================
-// Common Format Rules Tests
+// 常用格式规则测试
 // ============================================================================
 
 func TestDomainValidation(t *testing.T) {
@@ -555,7 +555,7 @@ func TestColorValidation(t *testing.T) {
 }
 
 // ============================================================================
-// Communication Rules Tests
+// 通讯规则测试
 // ============================================================================
 
 func TestTelPhoneValidation(t *testing.T) {
@@ -652,7 +652,7 @@ func TestWeChatValidation(t *testing.T) {
 }
 
 // ============================================================================
-// Code Naming Rules Tests
+// 代码命名规则测试
 // ============================================================================
 
 func TestPascalCaseValidation(t *testing.T) {
@@ -781,14 +781,14 @@ func TestUpperSnakeValidation(t *testing.T) {
 }
 
 // ============================================================================
-// Utility Functions Tests
+// 工具函数测试
 // ============================================================================
 
 func TestAllRules(t *testing.T) {
 	rules := vd.All()
 	assert.Greater(t, len(rules), 30)
 
-	// Verify all rules can be registered
+	// 验证所有规则均可注册
 	v := vd.New(vd.SetRules(rules...))
 	assert.NotNil(t, v)
 }

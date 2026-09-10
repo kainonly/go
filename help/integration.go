@@ -18,17 +18,17 @@ import (
 	"github.com/kainonly/go/vd"
 )
 
-// Ptr returns a pointer to the given value.
-// Useful for creating pointers to literals.
+// Ptr 返回指向给定值的指针。
+// 适合用于创建字面量的指针。
 //
-// Deprecated: The new builtin accepts a value expression since Go 1.26
-// (e.g. new(42)); use it instead.
+// Deprecated: Go 1.26 起 new 内置函数支持传值表达式
+// （如 new(42)），请改用它。
 func Ptr[T any](i T) *T {
 	return &i
 }
 
-// IsEmpty checks if a value is considered empty.
-// Returns true for nil, empty strings, zero values, empty slices/maps, etc.
+// IsEmpty 判断一个值是否被视为空值。
+// 对 nil、空字符串、零值、空切片/map 等返回 true。
 func IsEmpty(i any) bool {
 	if i == nil || i == "" {
 		return true
@@ -57,37 +57,37 @@ func IsEmpty(i any) bool {
 	}
 }
 
-// Sha256hex computes SHA256 hash and returns hex-encoded string.
+// Sha256hex 计算 SHA256 哈希并返回十六进制编码的字符串。
 func Sha256hex(s string) string {
 	b := sha256.Sum256([]byte(s))
 	return hex.EncodeToString(b[:])
 }
 
-// HmacSha256 computes HMAC-SHA256 and returns raw bytes as string.
-// For hex output, use hex.EncodeToString on the result.
+// HmacSha256 计算 HMAC-SHA256 并以字符串形式返回原始字节。
+// 若需十六进制输出，请对结果使用 hex.EncodeToString。
 func HmacSha256(s, key string) string {
 	hashed := hmac.New(sha256.New, []byte(key))
 	hashed.Write([]byte(s))
 	return string(hashed.Sum(nil))
 }
 
-// Validator creates a configured go-playground validator for Hertz.
-// It sets "vd" as the validation tag and registers custom validators:
-//   - snake: validates snake_case format (e.g., "user_name")
-//   - sort: validates sort format (e.g., "created_at:1" or "name:-1")
+// Validator 创建面向 Hertz 的 go-playground validator 配置。
+// 它将 "vd" 设为验证标签，并注册自定义验证器：
+//   - snake：验证 snake_case 格式（如 "user_name"）
+//   - sort：验证排序格式（如 "created_at:1" 或 "name:-1"）
 //
-// Deprecated: Use vd.Default() instead.
+// Deprecated: 请改用 vd.Default()。
 func Validator() *vd.Validator {
 	return vd.Default()
 }
 
-// R is a standard API response structure.
+// R 是标准的 API 响应结构。
 type R struct {
 	Code    int64  `json:"code"`
 	Message string `json:"message"`
 }
 
-// Ok returns a success response with code 0 and message "ok".
+// Ok 返回 code 为 0、message 为 "ok" 的成功响应。
 func Ok() R {
 	return R{
 		Code:    0,
@@ -95,7 +95,7 @@ func Ok() R {
 	}
 }
 
-// Fail returns an error response with the given code and message.
+// Fail 返回携带给定 code 和 message 的错误响应。
 func Fail(code int64, msg string) R {
 	return R{
 		Code:    code,
@@ -103,27 +103,27 @@ func Fail(code int64, msg string) R {
 	}
 }
 
-// ErrorMeta contains error metadata for Hertz errors.
+// ErrorMeta 包含 Hertz 错误的元数据。
 type ErrorMeta struct {
 	Code int64
 }
 
-// E creates a public Hertz error with a code.
-// Use this for business logic errors that should be shown to users.
+// E 创建携带 code 的公开 Hertz 错误。
+// 用于需要展示给用户的业务逻辑错误。
 func E(code int64, msg string) *errors.Error {
 	return errors.NewPublic(msg).SetMeta(&ErrorMeta{Code: code})
 }
 
-// ErrorTypePublic is the type for public errors in Hertz framework.
+// ErrorTypePublic 是 Hertz 框架中公开错误的类型。
 var ErrorTypePublic = errors.ErrorTypePublic
 
-// ErrorHandler returns a Hertz middleware that handles errors.
-// It processes different error types:
-//   - Public errors: Returns 400 with code and message
-//   - Validation errors: Returns 400 with field details
-//   - Other errors: Returns 500 (with details in dev mode)
+// ErrorHandler 返回处理错误的 Hertz 中间件。
+// 它处理不同的错误类型：
+//   - 公开错误：返回 400 及 code 和 message
+//   - 验证错误：返回 400 及字段详情
+//   - 其他错误：返回 500（开发模式下附带详情）
 //
-// Set MODE=release environment variable for production mode.
+// 生产模式请设置 MODE=release 环境变量。
 func ErrorHandler() app.HandlerFunc {
 	release := os.Getenv("MODE") == "release"
 	return func(ctx context.Context, c *app.RequestContext) {

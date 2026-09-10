@@ -9,15 +9,15 @@ import (
 	"strconv"
 )
 
-// Reverse reverses the order of elements in a slice in place.
+// Reverse 原地反转切片中元素的顺序。
 func Reverse[T any](v []T) {
 	for n, m := 0, len(v)-1; n < len(v)/2; n, m = n+1, m-1 {
 		v[n], v[m] = v[m], v[n]
 	}
 }
 
-// Shuffle randomly shuffles the elements in a slice in place.
-// Uses cryptographically secure random numbers.
+// Shuffle 原地随机打乱切片中的元素。
+// 使用密码学安全的随机数。
 func Shuffle[T any](v []T) {
 	for n := len(v) - 1; n > 0; n-- {
 		m := secureRandInt(n + 1)
@@ -27,8 +27,8 @@ func Shuffle[T any](v []T) {
 	}
 }
 
-// ReverseString returns a new string with characters in reverse order.
-// Properly handles Unicode characters.
+// ReverseString 返回字符顺序反转后的新字符串。
+// 正确处理 Unicode 字符。
 func ReverseString(v string) string {
 	runes := []rune(v)
 	for n, m := 0, len(runes)-1; n < len(runes)/2; n, m = n+1, m-1 {
@@ -37,8 +37,8 @@ func ReverseString(v string) string {
 	return string(runes)
 }
 
-// ShuffleString returns a new string with characters randomly shuffled.
-// Uses cryptographically secure random numbers.
+// ShuffleString 返回字符随机打乱后的新字符串。
+// 使用密码学安全的随机数。
 func ShuffleString(v string) string {
 	runes := []rune(v)
 	for n := len(runes) - 1; n > 0; n-- {
@@ -50,16 +50,16 @@ func ShuffleString(v string) string {
 	return string(runes)
 }
 
-// secureRandInt returns a cryptographically secure random int in [0, max).
+// secureRandInt 返回 [0, max) 范围内密码学安全的随机整数。
 func secureRandInt(max int) int {
 	var b [8]byte
 	rand.Read(b[:])
 	return int(binary.BigEndian.Uint64(b[:]) % uint64(max))
 }
 
-// MapToSignText converts a map to a URL-encoded query string format.
-// Keys are sorted alphabetically, nil and empty values are omitted.
-// Format: "key1=value1&key2=value2"
+// MapToSignText 将 map 转换为 URL 编码的查询字符串格式。
+// 键按字母顺序排序，nil 和空值会被省略。
+// 格式："key1=value1&key2=value2"
 func MapToSignText(d map[string]any) string {
 	keys := make([]string, 0, len(d))
 	for k := range d {

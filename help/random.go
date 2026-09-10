@@ -1,19 +1,19 @@
-// Package help provides common utility functions for Go applications.
+// Package help 提供 Go 应用程序的常用工具函数。
 //
-// It includes:
-//   - Random string generation (cryptographically secure)
-//   - UUID and Snowflake ID generation
-//   - Slice/string manipulation (reverse, shuffle)
-//   - Map to query string conversion
-//   - SM2/SM4 cryptographic utilities
-//   - Hertz framework integration helpers
+// 包含：
+//   - 随机字符串生成（密码学安全）
+//   - UUID 与 Snowflake ID 生成
+//   - 切片/字符串操作（反转、乱序）
+//   - Map 转查询字符串
+//   - SM2/SM4 加密工具
+//   - Hertz 框架集成辅助
 package help
 
 import "crypto/rand"
 
-// Random generates a cryptographically secure random string of length n.
-// By default, it uses alphanumeric characters (a-zA-Z0-9).
-// An optional charset can be provided to customize the character set.
+// Random 生成长度为 n 的密码学安全随机字符串。
+// 默认使用字母数字字符（a-zA-Z0-9）。
+// 可选参数 charset 用于自定义字符集。
 func Random(n int, charset ...string) string {
 	letters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	if len(charset) != 0 {
@@ -30,24 +30,24 @@ func Random(n int, charset ...string) string {
 	return string(b)
 }
 
-// RandomNumber generates a random numeric string of length n.
-// Uses only digits 0-9.
+// RandomNumber 生成长度为 n 的随机数字字符串。
+// 仅使用数字 0-9。
 func RandomNumber(n int) string {
 	return Random(n, "0123456789")
 }
 
-// RandomLowercase generates a random lowercase alphabetic string of length n.
+// RandomLowercase 生成长度为 n 的随机小写字母字符串。
 func RandomLowercase(n int) string {
 	return Random(n, "abcdefghijklmnopqrstuvwxyz")
 }
 
-// RandomUppercase generates a random uppercase alphabetic string of length n.
+// RandomUppercase 生成长度为 n 的随机大写字母字符串。
 func RandomUppercase(n int) string {
 	return Random(n, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 }
 
-// RandomAlphabet generates a random alphabetic string of length n.
-// Uses both uppercase and lowercase letters.
+// RandomAlphabet 生成长度为 n 的随机字母字符串。
+// 同时使用大写和小写字母。
 func RandomAlphabet(n int) string {
 	return Random(n, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 }

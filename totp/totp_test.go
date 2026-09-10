@@ -27,12 +27,12 @@ func TestGenerateAndValidate(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	// Generate a code
+	// 生成验证码
 	code, err := totp.Generate(key.Secret())
 	assert.NoError(t, err)
 	assert.Len(t, code, 6)
 
-	// Validate the code
+	// 校验验证码
 	valid := totp.Validate(code, key.Secret())
 	assert.True(t, valid)
 }
@@ -58,14 +58,14 @@ func TestValidateWithOpts(t *testing.T) {
 	code, err := totp.Generate(key.Secret())
 	assert.NoError(t, err)
 
-	// Validate with larger time window
+	// 以更大的时间窗口校验
 	valid, err := totp.ValidateWithOpts(code, key.Secret(), totp.ValidateOpts{
 		Skew: 2,
 	})
 	assert.NoError(t, err)
 	assert.True(t, valid)
 
-	// Invalid code should fail
+	// 无效的验证码应失败
 	valid, err = totp.ValidateWithOpts("000000", key.Secret(), totp.ValidateOpts{
 		Skew: 1,
 	})

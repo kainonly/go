@@ -29,7 +29,7 @@ func TestMain(m *testing.M) {
 func TestKey(t *testing.T) {
 	assert.Equal(t, "locker:login:test", x.Key("login:test"))
 
-	// Test custom prefix
+	// 测试自定义前缀
 	x2 := locker.New(x.RDb, locker.SetPrefix("rate"))
 	assert.Equal(t, "rate:api:users", x2.Key("api:users"))
 }
@@ -37,91 +37,91 @@ func TestKey(t *testing.T) {
 func TestIncrement(t *testing.T) {
 	ctx := context.TODO()
 
-	// First increment should return 1
+	// 第一次自增应返回 1
 	n, err := x.Increment(ctx, "test1", time.Minute)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), n)
 
-	// Second increment should return 2
+	// 第二次自增应返回 2
 	n, err = x.Increment(ctx, "test1", time.Minute)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(2), n)
 
-	// TTL should be set
+	// TTL 应已被设置
 	ttl := x.RDb.TTL(ctx, x.Key("test1")).Val()
 	assert.True(t, ttl > 0)
 
-	// Cleanup
+	// 清理
 	x.Delete(ctx, "test1")
 }
 
 func TestIncrement_PreservesTTL(t *testing.T) {
 	ctx := context.TODO()
 
-	// First increment with 1 second TTL
+	// 第一次以 1 秒 TTL 自增
 	_, err := x.Increment(ctx, "test2", time.Second)
 	assert.NoError(t, err)
 
-	// Wait a bit
+	// 稍作等待
 	time.Sleep(100 * time.Millisecond)
 
-	// Second increment should not reset TTL
-	_, err = x.Increment(ctx, "test2", time.Minute) // Different TTL, should be ignored
+	// 第二次自增不应重置 TTL
+	_, err = x.Increment(ctx, "test2", time.Minute) // 不同的 TTL，应被忽略
 	assert.NoError(t, err)
 
-	// TTL should still be close to original (less than 1 second)
+	// TTL 仍应接近原始值（小于 1 秒）
 	ttl := x.RDb.TTL(ctx, x.Key("test2")).Val()
 	assert.True(t, ttl > 0)
 	assert.True(t, ttl < 2*time.Second)
 
-	// Cleanup
+	// 清理
 	x.Delete(ctx, "test2")
 }
 
 func TestCheck_NotLocked(t *testing.T) {
 	ctx := context.TODO()
 
-	// Non-existent key should not be locked
+	// 不存在的键不应被锁定
 	err := x.Check(ctx, "nonexistent", 5)
 	assert.NoError(t, err)
 
-	// Create a counter below max
+	// 创建一个低于上限的计数
 	x.Increment(ctx, "test3", time.Minute)
 	x.Increment(ctx, "test3", time.Minute)
 
-	// Should not be locked (count=2, max=5)
+	// 不应被锁定（count=2, max=5）
 	err = x.Check(ctx, "test3", 5)
 	assert.NoError(t, err)
 
-	// Cleanup
+	// 清理
 	x.Delete(ctx, "test3")
 }
 
 func TestCheck_Locked(t *testing.T) {
 	ctx := context.TODO()
 
-	// Increment to reach max
+	// 自增达到上限
 	for i := 0; i < 5; i++ {
 		x.Increment(ctx, "test4", time.Minute)
 	}
 
-	// Should be locked (count=5, max=5)
+	// 应被锁定（count=5, max=5）
 	err := x.Check(ctx, "test4", 5)
 	assert.ErrorIs(t, err, locker.ErrLocked)
 
-	// Cleanup
+	// 清理
 	x.Delete(ctx, "test4")
 }
 
 func TestGet(t *testing.T) {
 	ctx := context.TODO()
 
-	// Non-existent key should return 0
+	// 不存在的键应返回 0
 	n, err := x.Get(ctx, "nonexistent")
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), n)
 
-	// After increments
+	// 自增之后
 	x.Increment(ctx, "test5", time.Minute)
 	x.Increment(ctx, "test5", time.Minute)
 	x.Increment(ctx, "test5", time.Minute)
@@ -130,7 +130,7 @@ func TestGet(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, int64(3), n)
 
-	// Cleanup
+	// 清理
 	x.Delete(ctx, "test5")
 }
 
@@ -139,11 +139,11 @@ func TestDelete(t *testing.T) {
 
 	x.Increment(ctx, "test6", time.Minute)
 
-	// Delete existing key
+	// 删除存在的键
 	result := x.Delete(ctx, "test6")
 	assert.Equal(t, int64(1), result)
 
-	// Delete non-existing key
+	// 删除不存在的键
 	result = x.Delete(ctx, "test6")
 	assert.Equal(t, int64(0), result)
 }
@@ -151,17 +151,17 @@ func TestDelete(t *testing.T) {
 func TestExpiration(t *testing.T) {
 	ctx := context.TODO()
 
-	// Create with short TTL
+	// 以较短的 TTL 创建
 	x.Increment(ctx, "test7", 50*time.Millisecond)
 
-	// Should exist
+	// 应存在
 	n, _ := x.Get(ctx, "test7")
 	assert.Equal(t, int64(1), n)
 
-	// Wait for expiration
+	// 等待过期
 	time.Sleep(100 * time.Millisecond)
 
-	// Should be gone
+	// 应已消失
 	n, _ = x.Get(ctx, "test7")
 	assert.Equal(t, int64(0), n)
 }

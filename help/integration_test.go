@@ -204,7 +204,7 @@ func TestIsEmpty(t *testing.T) {
 	fn = func() {}
 	assert.False(t, help.IsEmpty(fn))
 
-	// Additional tests
+	// 补充测试
 	assert.True(t, help.IsEmpty(nil))
 	assert.True(t, help.IsEmpty(0))
 	assert.True(t, help.IsEmpty(false))
@@ -313,7 +313,7 @@ func TestUuid7(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, uuid.Version(7), id.Version())
 
-	// Test time ordering
+	// 测试时间排序
 	v1 := help.Uuid7()
 	v2 := help.Uuid7()
 	assert.True(t, v1 < v2, "UUIDv7 should be time-ordered")
@@ -333,15 +333,15 @@ func TestUuid7Time(t *testing.T) {
 	assert.True(t, ok)
 	assert.Greater(t, ts, int64(0))
 
-	// Timestamp should be close to now (within 1 second)
+	// 时间戳应接近当前时间（1 秒以内）
 	now := time.Now().UnixMilli()
 	assert.InDelta(t, now, ts, 1000)
 
-	// Test invalid UUID
+	// 测试无效的 UUID
 	_, ok = help.Uuid7Time("invalid")
 	assert.False(t, ok)
 
-	// Test UUIDv4 (not v7)
+	// 测试 UUIDv4（非 v7）
 	v4 := help.Uuid()
 	_, ok = help.Uuid7Time(v4)
 	assert.False(t, ok)
@@ -356,16 +356,16 @@ func TestSID(t *testing.T) {
 }
 
 func TestSIDWithError(t *testing.T) {
-	// Test normal operation
+	// 测试正常操作
 	id, err := help.SIDWithError()
 	assert.NoError(t, err)
 	assert.NotEmpty(t, id)
 
-	// Test with custom Sonyflake that returns an error
+	// 测试返回错误的自定义 Sonyflake
 	// sf := sonyflake.NewSonyflake(sonyflake.Settings{})
 	// id, err = sf.NextID()
-	// Use reflection or create a mock to test error condition
-	// For now, just ensure the function exists and works
+	// 使用反射或创建 mock 来测试错误条件
+	// 目前仅确认函数存在且可用
 	// _, _ = id, err
 }
 
@@ -411,7 +411,7 @@ func TestSm2PublicKey(t *testing.T) {
 }
 
 func TestSm2ParseAndVerify_More(t *testing.T) {
-	// generate key pair
+	// 生成密钥对
 	priKey, err := sm2.GenerateKey(rand.Reader)
 	assert.NoError(t, err)
 	b, err := smx509.MarshalPKIXPublicKey(&priKey.PublicKey)
@@ -420,7 +420,7 @@ func TestSm2ParseAndVerify_More(t *testing.T) {
 	pubKey, err := help.PubKeySM2FromBase64(pubKeyStr)
 	assert.NoError(t, err)
 
-	// convert to ecdsa.PublicKey
+	// 转换为 ecdsa.PublicKey
 	ecdsaPub := &ecdsa.PublicKey{Curve: pubKey.Curve, X: pubKey.X, Y: pubKey.Y}
 	sig, err := help.Sm2Sign(priKey, "Hello")
 	assert.NoError(t, err)
@@ -438,12 +438,12 @@ func TestSM4(t *testing.T) {
 	assert.NoError(t, err)
 	t.Log("ciphertext:", ciphertext)
 
-	// Decrypt
+	// 解密
 	decryptedText, err := help.SM4Decrypt(key, ciphertext)
 	assert.NoError(t, err)
 	t.Log("decrypted:", decryptedText)
 
-	// Verify
+	// 验证
 	valid, err := help.SM4Verify(key, ciphertext, plaintext)
 	assert.NoError(t, err)
 	if !valid {
@@ -451,7 +451,7 @@ func TestSM4(t *testing.T) {
 	}
 	t.Log("verification passed")
 
-	// Test with a known ciphertext
+	// 使用已知密文测试
 	testCiphertext := "056df5b3d1b15e2567d0dcd6e6cfbeff"
 	testDecryptedText, err := help.SM4Decrypt(key, testCiphertext)
 	assert.NoError(t, err)
@@ -462,7 +462,7 @@ func TestSM4(t *testing.T) {
 func TestSM4_InvalidInputs(t *testing.T) {
 	_, err := help.SM4Encrypt("zzz", "hello")
 	assert.Error(t, err)
-	// invalid hex ciphertext for decrypt
+	// 解密时使用无效的十六进制密文
 	_, err = help.SM4Decrypt("f93c920868b4e5a88dfb27fd44b9f8db", "not-hex")
 	assert.Error(t, err)
 }
