@@ -7,9 +7,10 @@
 ## 常用命令
 
 ```bash
-go build ./...    # 编译所有包
-go vet ./...      # 静态检查
-go test ./...     # 运行测试（未设置 DATABASE_REDIS 时跳过 Redis 相关测试）
+go build ./...         # 编译所有包
+go vet ./...           # 静态检查
+golangci-lint run      # 完整 lint（CI 会跑同一套，配置见 .golangci.yml）
+go test ./...          # 运行测试（未设置 DATABASE_REDIS 时跳过 Redis 相关测试）
 ```
 
 `captcha` 和 `locker` 包依赖 Redis，未设置 `DATABASE_REDIS` 环境变量时会静默跳过测试。运行完整测试：

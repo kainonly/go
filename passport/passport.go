@@ -159,7 +159,7 @@ func NewClaims(activeId string, expire time.Duration) *Claims {
 // SetJTI 设置 JWT ID（jti claim）保证令牌唯一性，
 // 适用于令牌吊销与追踪。
 func (x *Claims) SetJTI(v string) *Claims {
-	x.RegisteredClaims.ID = v
+	x.ID = v
 	return x
 }
 
@@ -173,7 +173,7 @@ func (x *Claims) SetData(v map[string]interface{}) *Claims {
 // Create 根据给定 claims 生成已签名的 JWT 令牌字符串，
 // 使用 HS256 算法签名。
 func (x *Passport) Create(claims *Claims) (string, error) {
-	claims.RegisteredClaims.Issuer = x.Issuer
+	claims.Issuer = x.Issuer
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(x.Key))
 }

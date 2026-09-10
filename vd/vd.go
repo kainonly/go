@@ -134,9 +134,9 @@ func New(opts ...Option) *Validator {
 	// 注册自定义规则
 	for _, rule := range o.rules {
 		if rule.Call {
-			core.RegisterValidation(rule.Tag, rule.Fn, true)
+			_ = core.RegisterValidation(rule.Tag, rule.Fn, true)
 		} else {
-			core.RegisterValidation(rule.Tag, rule.Fn)
+			_ = core.RegisterValidation(rule.Tag, rule.Fn)
 		}
 	}
 

@@ -147,6 +147,6 @@ func TestNewClaims(t *testing.T) {
 	assert.NotNil(t, claims.IssuedAt)
 	assert.NotNil(t, claims.NotBefore)
 	// ExpiresAt 应约为当前时间 1 小时之后
-	assert.True(t, claims.ExpiresAt.Time.After(time.Now().Add(59*time.Minute)))
-	assert.True(t, claims.ExpiresAt.Time.Before(time.Now().Add(61*time.Minute)))
+	assert.True(t, claims.ExpiresAt.After(time.Now().Add(59*time.Minute)))
+	assert.True(t, claims.ExpiresAt.Before(time.Now().Add(61*time.Minute)))
 }

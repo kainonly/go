@@ -1,0 +1,8 @@
+version: "2"
+linters:
+  exclusions:
+    rules:
+      # 测试代码中的错误返回以 assert 断言为主，errcheck 噪音大
+      - path: _test\.go
+        linters:
+          - errcheck

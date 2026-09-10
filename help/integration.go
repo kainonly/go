@@ -50,7 +50,7 @@ func IsEmpty(i any) bool {
 		return v.Uint() == 0
 	case reflect.Float32, reflect.Float64:
 		return v.Float() == 0
-	case reflect.Interface, reflect.Ptr, reflect.Func, reflect.Chan:
+	case reflect.Interface, reflect.Pointer, reflect.Func, reflect.Chan:
 		return v.IsNil()
 	default:
 		return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()).Interface())

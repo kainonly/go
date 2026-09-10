@@ -43,7 +43,7 @@ func TestVerifyToken_IgnoreMethods(t *testing.T) {
 	router.GET("/api", x.VerifyToken(), func(ctx context.Context, c *app.RequestContext) {
 		c.JSON(http.StatusOK, utils.H{"ok": 1})
 	})
-	w := ut.PerformRequest(router, "GET", "/api", &ut.Body{bytes.NewBuffer(nil), 0})
+	w := ut.PerformRequest(router, "GET", "/api", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0})
 	resp := w.Result()
 	assert.Equal(t, http.StatusOK, resp.StatusCode())
 }
@@ -54,7 +54,7 @@ func TestVerifyToken_MissingSalt(t *testing.T) {
 	router.POST("/api", x.VerifyToken(), func(ctx context.Context, c *app.RequestContext) {
 		c.JSON(http.StatusOK, utils.H{"ok": 1})
 	})
-	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{bytes.NewBuffer(nil), 0})
+	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0})
 	resp := w.Result()
 	assert.Equal(t, http.StatusForbidden, resp.StatusCode())
 }
@@ -66,8 +66,8 @@ func TestVerifyToken_MissingHeader(t *testing.T) {
 		c.JSON(http.StatusOK, utils.H{"ok": 1})
 	})
 	salt := "abcd1234abcd1234"
-	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{bytes.NewBuffer(nil), 0},
-		ut.Header{"Cookie", "XSRF-SALT=" + salt})
+	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0},
+		ut.Header{Key: "Cookie", Value: "XSRF-SALT=" + salt})
 	resp := w.Result()
 	assert.Equal(t, http.StatusForbidden, resp.StatusCode())
 }
@@ -79,9 +79,9 @@ func TestVerifyToken_InvalidToken(t *testing.T) {
 		c.JSON(http.StatusOK, utils.H{"ok": 1})
 	})
 	salt := "abcd1234abcd1234"
-	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{bytes.NewBuffer(nil), 0},
-		ut.Header{"Cookie", "XSRF-SALT=" + salt},
-		ut.Header{"X-XSRF-TOKEN", "invalid"})
+	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0},
+		ut.Header{Key: "Cookie", Value: "XSRF-SALT=" + salt},
+		ut.Header{Key: "X-XSRF-TOKEN", Value: "invalid"})
 	resp := w.Result()
 	assert.Equal(t, http.StatusForbidden, resp.StatusCode())
 }
@@ -94,9 +94,9 @@ func TestVerifyToken_Success(t *testing.T) {
 	})
 	salt := "abcd1234abcd1234"
 	token := x.Tokenize(salt)
-	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{bytes.NewBuffer(nil), 0},
-		ut.Header{"Cookie", "XSRF-SALT=" + salt},
-		ut.Header{"X-XSRF-TOKEN", token})
+	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0},
+		ut.Header{Key: "Cookie", Value: "XSRF-SALT=" + salt},
+		ut.Header{Key: "X-XSRF-TOKEN", Value: token})
 	resp := w.Result()
 	assert.Equal(t, http.StatusOK, resp.StatusCode())
 }
@@ -107,7 +107,7 @@ func TestVerifyToken_CustomIgnore(t *testing.T) {
 	router.POST("/api", x.VerifyToken(), func(ctx context.Context, c *app.RequestContext) {
 		c.JSON(http.StatusOK, utils.H{"ok": 1})
 	})
-	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{bytes.NewBuffer(nil), 0})
+	w := ut.PerformRequest(router, "POST", "/api", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0})
 	resp := w.Result()
 	assert.Equal(t, http.StatusOK, resp.StatusCode())
 }
@@ -119,7 +119,7 @@ func TestSetToken(t *testing.T) {
 		x.SetToken(c)
 		c.JSON(http.StatusOK, nil)
 	})
-	w := ut.PerformRequest(router, "GET", "/csrf", &ut.Body{bytes.NewBuffer(nil), 0})
+	w := ut.PerformRequest(router, "GET", "/csrf", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0})
 	resp := w.Result()
 	assert.Equal(t, http.StatusOK, resp.StatusCode())
 }

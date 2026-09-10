@@ -10,6 +10,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest
+
   testing:
     runs-on: ubuntu-latest
     timeout-minutes: 20

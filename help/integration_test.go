@@ -3,7 +3,6 @@ package help_test
 import (
 	"bytes"
 	"context"
-	"crypto/ecdsa"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
@@ -268,7 +267,7 @@ func TestErrorHandler_Public(t *testing.T) {
 	router.GET("/public", help.ErrorHandler(), func(ctx context.Context, c *app.RequestContext) {
 		c.Error(help.E(1001, "bad request"))
 	})
-	w := ut.PerformRequest(router, "GET", "/public", &ut.Body{bytes.NewBuffer(nil), 0})
+	w := ut.PerformRequest(router, "GET", "/public", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0})
 	resp := w.Result()
 	assert.Equal(t, 400, resp.StatusCode())
 }
@@ -284,7 +283,7 @@ func TestErrorHandler_Validation(t *testing.T) {
 		err := vd.Struct(s)
 		c.Error(err)
 	})
-	w := ut.PerformRequest(router, "GET", "/validation", &ut.Body{bytes.NewBuffer(nil), 0})
+	w := ut.PerformRequest(router, "GET", "/validation", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0})
 	resp := w.Result()
 	assert.Equal(t, 400, resp.StatusCode())
 }
@@ -295,7 +294,7 @@ func TestErrorHandler_Internal(t *testing.T) {
 	router.GET("/internal", help.ErrorHandler(), func(ctx context.Context, c *app.RequestContext) {
 		c.Error(errors.New("something wrong"))
 	})
-	w := ut.PerformRequest(router, "GET", "/internal", &ut.Body{bytes.NewBuffer(nil), 0})
+	w := ut.PerformRequest(router, "GET", "/internal", &ut.Body{Body: bytes.NewBuffer(nil), Len: 0})
 	resp := w.Result()
 	assert.Equal(t, 500, resp.StatusCode())
 }
@@ -379,12 +378,7 @@ func TestSm2(t *testing.T) {
 	assert.NoError(t, err)
 	t.Log(sig)
 
-	pub := priKey.PublicKey
-	ecdsaPub := &ecdsa.PublicKey{
-		Curve: pub.Curve,
-		X:     pub.X,
-		Y:     pub.Y,
-	}
+	ecdsaPub := &priKey.PublicKey
 
 	r, err := help.Sm2Verify(ecdsaPub, `Hello world`, sig)
 	assert.NoError(t, err)
@@ -420,8 +414,7 @@ func TestSm2ParseAndVerify_More(t *testing.T) {
 	pubKey, err := help.PubKeySM2FromBase64(pubKeyStr)
 	assert.NoError(t, err)
 
-	// 转换为 ecdsa.PublicKey
-	ecdsaPub := &ecdsa.PublicKey{Curve: pubKey.Curve, X: pubKey.X, Y: pubKey.Y}
+	ecdsaPub := pubKey
 	sig, err := help.Sm2Sign(priKey, "Hello")
 	assert.NoError(t, err)
 	ok, err := help.Sm2Verify(ecdsaPub, "Hello", sig)
